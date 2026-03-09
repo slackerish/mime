@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HTML Text Editor</title>
+<link rel="icon" type="image/png" href="https://img.icons8.com/ios7/1200/internet--v2.jpg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #111; color: #eee;
+  font-family: monospace;
+  display: flex; flex-direction: column;
+  height: 100vh; overflow: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  background: #1a1a1a; padding: 8px 10px;
+  display: flex; gap: 6px; flex-wrap: nowrap;
+  border-bottom: 1px solid #333; align-items: center; flex-shrink: 0;
+}
+button, label.btn {
+  background: #222; color: #fff; border: 1px solid #444;
+  padding: 6px 11px; cursor: pointer; border-radius: 6px;
+  font-size: 12px; font-family: monospace; white-space: nowrap; line-height: 1.2;
+}
+button:hover, label.btn:hover { background: #2e2e2e; }
+button:active, label.btn:active { background: #444; }
+button:disabled { opacity: .32; cursor: not-allowed; pointer-events: none; }
+.space-between { flex: 1; }
+
+/* ── TAB AREA ── */
+#tab-area {
+  background: #0f0f0f; border-bottom: 1px solid #333;
+  flex-shrink: 0; overflow-x: auto; overflow-y: visible;
+  scrollbar-width: thin; scrollbar-color: #333 #0f0f0f;
+}
+#tab-area::-webkit-scrollbar { height: 4px; }
+#tab-area::-webkit-scrollbar-thumb { background: #333; }
+.tab-row { display: flex; align-items: flex-end; min-height: 34px; flex-wrap: nowrap; }
+
+/* ── FOLDERS ── */
+.folder-block { display: inline-flex; flex-direction: column; vertical-align: bottom; flex-shrink: 0; border-right: 1px solid #252525; }
+.folder-header {
+  display: flex; align-items: center; gap: 3px; padding: 3px 6px 3px 5px;
+  background: #161616; cursor: pointer; font-size: 11px; color: #777;
+  border-bottom: 1px solid #252525; white-space: nowrap; user-select: none; min-width: 80px;
+}
+.folder-header:hover { background: #1e1e1e; color: #aaa; }
+.fold-arrow { font-size: 9px; transition: transform .15s; flex-shrink: 0; display: inline-block; }
+.folder-block.collapsed .fold-arrow { transform: rotate(-90deg); }
+.folder-name-input { background: transparent; border: none; outline: none; color: #aaa; font-family: monospace; font-size: 11px; width: 72px; cursor: text; }
+.folder-action { background: none !important; border: none !important; color: #555; font-size: 13px; padding: 0 2px !important; cursor: pointer; line-height: 1; border-radius: 3px; }
+.folder-add { margin-left: auto; }
+.folder-add:hover { color: #0d0 !important; background: #1a2a1a !important; }
+.folder-del:hover { color: #f55 !important; background: #2a1a1a !important; }
+.folder-tabs { display: flex; align-items: flex-end; padding: 0 2px; min-height: 26px; }
+.folder-block.collapsed .folder-tabs { display: none; }
+
+/* ── TABS ── */
+.tab {
+  display: flex; align-items: center; gap: 5px; padding: 5px 10px;
+  background: #1a1a1a; border: 1px solid #2a2a2a; border-bottom: none;
+  cursor: pointer; font-size: 12px; color: #888; white-space: nowrap;
+  flex-shrink: 0; position: relative; margin-right: 2px;
+  border-radius: 4px 4px 0 0; transition: background .12s; min-width: 80px; max-width: 170px;
+}
+.tab.active { background: #111; color: #fff; border-color: #444; z-index: 1; }
+.tab:hover:not(.active) { background: #222; color: #bbb; }
+.tab-name { flex: 1; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+.tab-name-input { background: transparent; border: none; outline: none; color: #fff; font-family: monospace; font-size: 12px; width: 100%; padding: 0; }
+.tab-close { background: none; border: none; color: #555; cursor: pointer; font-size: 14px; padding: 0 2px; border-radius: 3px; line-height: 1; }
+.tab-close:hover { background: #333; color: #f55; }
+.tab-ext { font-size: 10px; color: #555; background: #222; border-radius: 3px; padding: 1px 4px; flex-shrink: 0; }
+.tab.active .tab-ext { background: #2a2a2a; color: #888; }
+#tab-controls { display: flex; align-items: center; padding: 0 4px; gap: 2px; flex-shrink: 0; }
+.ctrl-btn { background: none !important; border: none !important; color: #666; font-size: 16px; padding: 4px 6px !important; cursor: pointer; border-radius: 4px; line-height: 1; font-family: monospace; }
+.ctrl-btn:hover { background: #222 !important; color: #aaa; }
+.ctrl-btn-sm { font-size: 11px !important; }
+
+/* ── EDITOR / MEDIA AREA ── */
+#editor-wrapper { flex: 1; display: flex; overflow: hidden; position: relative; }
+#lineNumbers { background: #0b0b0b; color: #555; padding: 10px 6px; text-align: right; user-select: none; overflow: hidden; font-size: 12px; line-height: 1.4em; min-width: 36px; flex-shrink: 0; }
+#editor { flex: 1; border: none; outline: none; resize: none; background: #000; color: #0f0; padding: 10px; font-size: 12px; font-family: monospace; line-height: 1.4em; overflow: auto; tab-size: 2; }
+
+/* ── COLLAPSED FILE VIEWER ── */
+#collapsed-viewer {
+  display: none; flex: 1; flex-direction: column;
+  background: #070707; overflow: hidden;
+}
+.collapsed-topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: #111;
+  border-bottom: 1px solid #2a2a2a; flex-shrink: 0;
+}
+.collapsed-topbar .file-icon { font-size: 20px; color: #555; }
+.collapsed-topbar .file-info { flex: 1; }
+.collapsed-topbar .file-info .fname { font-size: 13px; color: #ccc; font-weight: bold; }
+.collapsed-topbar .file-info .fmeta { font-size: 11px; color: #555; margin-top: 2px; }
+.collapsed-topbar .edit-anyway-btn {
+  background: #1a1a2a; border: 1px solid #3a3a5a; color: #88f;
+  padding: 5px 12px; border-radius: 5px; cursor: pointer; font-size: 11px;
+}
+.collapsed-topbar .edit-anyway-btn:hover { background: #222240; border-color: #5555aa; color: #aaf; }
+.collapsed-preview {
+  flex: 1; overflow: auto; padding: 14px 16px;
+}
+.collapsed-preview pre {
+  color: #4a4a4a; font-size: 11px; line-height: 1.5em;
+  font-family: monospace; white-space: pre-wrap; word-break: break-all;
+  pointer-events: none; user-select: none;
+}
+.collapsed-preview .line-count {
+  font-size: 10px; color: #333; margin-top: 10px; border-top: 1px solid #1a1a1a;
+  padding-top: 8px;
+}
+
+/* ── IMAGE VIEWER ── */
+#image-viewer { display: none; flex: 1; background: #050505; align-items: center; justify-content: center; flex-direction: column; gap: 12px; overflow: auto; padding: 20px; }
+#image-viewer img { max-width: 100%; max-height: calc(100vh - 200px); border-radius: 4px; box-shadow: 0 4px 24px rgba(0,0,0,.8); object-fit: contain; }
+#image-viewer .img-info { color: #555; font-size: 11px; text-align: center; }
+
+/* ── AUDIO VIEWER ── */
+#audio-viewer { display: none; flex: 1; background: #050505; align-items: center; justify-content: center; overflow: auto; padding: 20px; }
+.audio-card {
+  background: #111; border: 1px solid #2a2a2a; border-radius: 14px;
+  padding: 28px 32px; width: 340px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.7); transition: background .5s, border-color .5s;
+}
+.audio-cover { width: 180px; height: 180px; border-radius: 10px; object-fit: cover; box-shadow: 0 4px 20px rgba(0,0,0,.6); display: block; }
+.audio-cover-placeholder { width: 180px; height: 180px; border-radius: 10px; background: #1a1a1a; border: 1px solid #2a2a2a; display: flex; align-items: center; justify-content: center; font-size: 52px; color: #333; }
+.audio-meta { text-align: center; width: 100%; }
+.audio-title { font-size: 15px; font-weight: bold; color: #eee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 280px; }
+.audio-artist { font-size: 12px; color: #777; margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.audio-album { font-size: 11px; color: #555; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.audio-controls { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.audio-progress-wrap { display: flex; align-items: center; gap: 8px; }
+.audio-time { font-size: 10px; color: #666; min-width: 32px; }
+.audio-time.right { text-align: right; }
+.audio-progress { flex: 1; height: 4px; -webkit-appearance: none; appearance: none; background: #2a2a2a; border-radius: 2px; cursor: pointer; outline: none; border: none; }
+.audio-progress::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%; background: #fff; cursor: pointer; }
+.audio-progress::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #fff; cursor: pointer; border: none; }
+.audio-btn-row { display: flex; justify-content: center; align-items: center; gap: 16px; }
+.audio-play-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: #fff; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #000; font-size: 16px;
+  box-shadow: 0 2px 12px rgba(255,255,255,.15);
+  transition: transform .12s, background .12s;
+  padding: 0;
+}
+.audio-play-btn:hover { transform: scale(1.07); background: #e8e8e8; }
+.audio-play-btn:active { transform: scale(.95); }
+/* FA icon centering fix */
+.audio-play-btn i { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; }
+.audio-play-btn i.fa-play { margin-left: 2px; } /* optical centering for play triangle */
+.audio-vol-wrap { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #666; }
+.audio-vol { width: 70px; height: 3px; -webkit-appearance: none; appearance: none; background: #2a2a2a; border-radius: 2px; cursor: pointer; outline: none; border: none; }
+.audio-vol::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #888; cursor: pointer; }
+.audio-vol::-moz-range-thumb { width: 10px; height: 10px; border-radius: 50%; background: #888; cursor: pointer; border: none; }
+
+/* ── TERMINAL ── */
+#terminal { height: 140px; background: #000; color: #f55; border-top: 1px solid #333; padding: 8px; font-size: 12px; display: none; overflow-y: auto; flex-shrink: 0; }
+#terminal.ok { color: #0f0; }
+
+/* ── SIDE PANELS ── */
+.side-panel { position: fixed; right: 0; top: 0; width: 360px; height: 100vh; background: #1a1a1a; border-left: 1px solid #333; display: none; flex-direction: column; z-index: 1000; }
+.side-panel.active { display: flex; }
+.panel-header { background: #222; padding: 10px 12px; border-bottom: 1px solid #333; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 13px; flex-shrink: 0; }
+.panel-close { background: #333; border: 1px solid #555; padding: 3px 8px; cursor: pointer; border-radius: 4px; font-size: 11px; color: #ccc; }
+.panel-close:hover { background: #444; }
+
+/* ── NOTES ── */
+#notes-controls { background: #1a1a1a; padding: 6px 8px; border-bottom: 1px solid #333; display: flex; gap: 4px; flex-wrap: wrap; flex-shrink: 0; }
+#notes-controls button { padding: 3px 7px; font-size: 11px; background: #2a2a2a; }
+#notes-controls button:hover { background: #333; }
+#notes-container { flex: 1; display: flex; overflow: hidden; }
+#notes-editor { flex: 1; background: #0d0d0d; color: #fff; border: none; outline: none; resize: none; padding: 10px; font-size: 13px; font-family: monospace; line-height: 1.5em; }
+#notes-preview { flex: 1; background: #0d0d0d; color: #ddd; padding: 15px; font-size: 13px; font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6em; overflow-y: auto; display: none; }
+#notes-preview h1 { font-size:2em; margin:.67em 0; border-bottom:1px solid #444; padding-bottom:.3em; }
+#notes-preview h2 { font-size:1.5em; margin:.75em 0; border-bottom:1px solid #333; padding-bottom:.3em; }
+#notes-preview h3 { font-size:1.25em; margin:.83em 0; }
+#notes-preview h4 { font-size:1em; margin:1em 0; }
+#notes-preview h5 { font-size:.875em; margin:1.17em 0; }
+#notes-preview h6 { font-size:.75em; margin:1.33em 0; color:#999; }
+#notes-preview p { margin:1em 0; }
+#notes-preview strong { font-weight:bold; color:#fff; }
+#notes-preview em { font-style:italic; color:#ccc; }
+#notes-preview code { background:#1a1a1a; padding:2px 6px; border-radius:3px; font-family:monospace; color:#0f0; }
+#notes-preview pre { background:#1a1a1a; padding:10px; border-radius:4px; overflow-x:auto; }
+#notes-preview pre code { background:none; padding:0; }
+
+/* ── LIBRARY PANEL (snippets) ── */
+#library-panel { position: fixed; left: 0; top: 0; width: 340px; height: 100vh; background: #1a1a1a; border-right: 1px solid #333; display: none; flex-direction: column; z-index: 1000; }
+#library-panel.active { display: flex; }
+#library-list { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 6px; }
+.lib-item { background: #111; border: 1px solid #2a2a2a; border-radius: 6px; padding: 8px 10px; transition: border-color .12s; }
+.lib-item:hover { border-color: #444; }
+.lib-item-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:4px; }
+.lib-item-name { font-size:12px; font-weight:bold; color:#ccc; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lib-item-ext { font-size:10px; color:#555; background:#1e1e1e; padding:1px 5px; border-radius:3px; margin-left:6px; flex-shrink:0; }
+.lib-item-actions { display:flex; gap:4px; margin-top:5px; }
+.lib-item-actions button { padding:2px 7px; font-size:10px; border-radius:4px; }
+.lib-open-tab { background:#1a2a1a!important; border-color:#2a4a2a!important; color:#0c0!important; }
+.lib-open-tab:hover { background:#1e3a1e!important; }
+.lib-copy { background:#1a1a2a!important; border-color:#2a2a4a!important; color:#66f!important; }
+.lib-copy:hover { background:#1e1e3a!important; }
+.lib-delete { background:#2a1a1a!important; border-color:#4a2a2a!important; color:#f55!important; }
+.lib-delete:hover { background:#3a1e1e!important; }
+.lib-preview { font-size:10px; color:#555; font-family:monospace; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#lib-empty { color:#444; font-size:12px; text-align:center; margin-top:30px; line-height:1.8; }
+#lib-add-btn { flex-shrink:0; border-top:1px solid #2a2a2a; padding:8px; background:#111; }
+#lib-add-btn button { width:100%; background:#1a2a1a; border-color:#2a4a2a; color:#0c0; font-size:12px; }
+#lib-add-btn button:hover { background:#1e3a1e; }
+
+/* ── TEMPLATE LIBRARY PANEL ── */
+#template-panel {
+  position: fixed; left: 0; top: 0; width: 400px; height: 100vh;
+  background: #141414; border-right: 1px solid #333;
+  display: none; flex-direction: column; z-index: 1001;
+}
+#template-panel.active { display: flex; }
+#template-search {
+  width: 100%; background: #0d0d0d; color: #eee;
+  border: none; border-bottom: 1px solid #2a2a2a;
+  padding: 9px 12px; font-size: 12px; font-family: monospace; outline: none;
+}
+#template-search::placeholder { color: #444; }
+#template-cats { display: flex; gap: 0; flex-shrink: 0; border-bottom: 1px solid #2a2a2a; overflow-x: auto; }
+#template-cats::-webkit-scrollbar { height: 3px; }
+.tcat-btn {
+  background: none; border: none; border-bottom: 2px solid transparent;
+  color: #666; padding: 6px 12px; font-size: 11px; cursor: pointer;
+  white-space: nowrap; font-family: monospace; border-radius: 0;
+}
+.tcat-btn:hover { color: #aaa; }
+.tcat-btn.active { color: #0f0; border-bottom-color: #0f0; background: none; }
+#template-list { flex: 1; overflow-y: auto; padding: 8px; display: flex; flex-direction: column; gap: 5px; }
+#template-list::-webkit-scrollbar { width: 4px; }
+#template-list::-webkit-scrollbar-thumb { background: #333; }
+.tmpl-item {
+  background: #111; border: 1px solid #222; border-radius: 6px;
+  padding: 10px 12px; cursor: pointer; transition: border-color .12s, background .12s;
+}
+.tmpl-item:hover { border-color: #3a3a3a; background: #151515; }
+.tmpl-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.tmpl-icon { font-size: 14px; width: 18px; text-align: center; }
+.tmpl-name { font-size: 12px; font-weight: bold; color: #ccc; flex: 1; }
+.tmpl-ext { font-size: 10px; color: #555; background: #1a1a1a; padding: 1px 5px; border-radius: 3px; }
+.tmpl-desc { font-size: 10px; color: #555; line-height: 1.4; }
+.tmpl-use-btn {
+  margin-top: 7px; width: 100%;
+  background: #1a2a1a; border: 1px solid #2a4a2a; color: #0c0;
+  padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer;
+}
+.tmpl-use-btn:hover { background: #1e3a1e; }
+
+/* ── DIALOGS ── */
+.dialog { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #1a1a1a; border: 1px solid #444; border-radius: 8px; padding: 18px; z-index: 2000; width: 320px; box-shadow: 0 8px 32px rgba(0,0,0,.7); }
+.dialog h3 { margin:0 0 12px; font-size:14px; color:#ddd; }
+.dialog input { width:100%; background:#111; color:#eee; border:1px solid #444; border-radius:5px; padding:7px 9px; font-size:12px; font-family:monospace; margin-bottom:10px; outline:none; }
+.dialog input:focus { border-color:#666; }
+.dialog-actions { display:flex; gap:8px; justify-content:flex-end; }
+.type-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-bottom:10px; }
+.type-btn { background:#222; border:1px solid #333; color:#aaa; padding:5px 3px; border-radius:5px; cursor:pointer; font-size:11px; font-family:monospace; text-align:center; }
+.type-btn:hover { background:#2e2e2e; border-color:#555; color:#fff; }
+.type-btn.selected { background:#1a2a1a; border-color:#3a5a3a; color:#0d0; }
+#overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1999; }
+#overlay.active { display:block; }
+input[type="file"] { display:none; }
+</style>
+</head>
+<body>
+<div id="overlay" onclick="closeAllDialogs()"></div>
+
+<!-- NEW FILE DIALOG -->
+<div id="type-picker" class="dialog">
+  <h3>New File</h3>
+  <input type="text" id="new-tab-name" placeholder="filename.html" oninput="syncPickerName()" />
+  <div class="type-grid" id="type-grid"></div>
+  <div class="dialog-actions">
+    <button onclick="closeAllDialogs()">Cancel</button>
+    <button onclick="confirmNewTab()" style="background:#1a2a1a;border-color:#2a4a2a;color:#0c0;">Create</button>
+  </div>
+</div>
+
+<!-- SAVE TO LIBRARY DIALOG -->
+<div id="save-dialog" class="dialog">
+  <h3>Save to Library</h3>
+  <input type="text" id="save-name" placeholder="snippet name (e.g. nav.html)" />
+  <div class="dialog-actions">
+    <button onclick="closeAllDialogs()">Cancel</button>
+    <button onclick="confirmSaveToLibrary()" style="background:#1a2a1a;border-color:#2a4a2a;color:#0c0;">Save</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <button onclick="togglePanel('template-panel')">Templates</button>
+  <button id="preview-btn" onclick="previewHTML()">Preview</button>
+  <button onclick="exportFile()">Export</button>
+  <button onclick="clearEditor()">Clear</button>
+  <button onclick="toggleTerminal()">Terminal</button>
+  <label class="btn">Import<input type="file" id="import-input" accept="*" multiple onchange="importFiles(this)"></label>
+  <div class="space-between"></div>
+  <button onclick="openSaveDialog()">Save to Library</button>
+  <button onclick="togglePanel('library-panel')">Library</button>
+  <button onclick="togglePanel('notes-panel')">Notes</button>
+</header>
+
+<!-- TAB / FOLDER AREA -->
+<div id="tab-area">
+  <div class="tab-row" id="root-row">
+    <div id="tab-controls">
+      <button class="ctrl-btn" onclick="openTypePicker(null)" title="New file">+</button>
+      <button class="ctrl-btn ctrl-btn-sm" onclick="createFolder()" title="New folder">📁+</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDITOR / VIEWER AREA -->
+<div id="editor-wrapper">
+  <pre id="lineNumbers">1</pre>
+  <textarea id="editor" spellcheck="false"></textarea>
+
+  <!-- Collapsed file viewer -->
+  <div id="collapsed-viewer">
+    <div class="collapsed-topbar">
+      <span class="file-icon" id="cv-icon">📄</span>
+      <div class="file-info">
+        <div class="fname" id="cv-fname">file.obj</div>
+        <div class="fmeta" id="cv-fmeta">Binary / large file — view only</div>
+      </div>
+      <button class="edit-anyway-btn" onclick="editAnyway()">Edit anyway</button>
+    </div>
+    <div class="collapsed-preview">
+      <pre id="cv-preview"></pre>
+      <div class="line-count" id="cv-linecount"></div>
+    </div>
+  </div>
+
+  <!-- Image viewer -->
+  <div id="image-viewer">
+    <img id="image-preview-el" src="" alt="" />
+    <div class="img-info" id="image-info"></div>
+  </div>
+
+  <!-- Audio viewer -->
+  <div id="audio-viewer">
+    <div class="audio-card" id="audio-card">
+      <div id="audio-cover-wrap"></div>
+      <div class="audio-meta">
+        <div class="audio-title" id="audio-title">—</div>
+        <div class="audio-artist" id="audio-artist"></div>
+        <div class="audio-album" id="audio-album"></div>
+      </div>
+      <div class="audio-controls">
+        <div class="audio-progress-wrap">
+          <span class="audio-time" id="audio-cur">0:00</span>
+          <input type="range" class="audio-progress" id="audio-seek" value="0" min="0" max="100" step="0.1">
+          <span class="audio-time right" id="audio-dur">0:00</span>
+        </div>
+        <div class="audio-btn-row">
+          <div class="audio-vol-wrap">
+            <i class="fa-solid fa-volume-low" style="color:#555;font-size:12px;"></i>
+            <input type="range" class="audio-vol" id="audio-vol" value="100" min="0" max="100">
+          </div>
+          <button class="audio-play-btn" id="audio-play-btn" onclick="toggleAudioPlay()">
+            <i class="fa-solid fa-play" id="audio-play-icon"></i>
+          </button>
+          <div style="width:82px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TERMINAL -->
+<div id="terminal"></div>
+
+<!-- NOTES PANEL -->
+<div id="notes-panel" class="side-panel">
+  <div class="panel-header"><span>Notes</span><button class="panel-close" onclick="togglePanel('notes-panel')">Close</button></div>
+  <div id="notes-controls">
+    <button onclick="insertMarkdown('# ')">H1</button><button onclick="insertMarkdown('## ')">H2</button>
+    <button onclick="insertMarkdown('### ')">H3</button><button onclick="insertMarkdown('#### ')">H4</button>
+    <button onclick="insertMarkdown('##### ')">H5</button><button onclick="insertMarkdown('###### ')">H6</button>
+    <button onclick="wrapMarkdown('**')">Bold</button><button onclick="wrapMarkdown('*')">Italic</button>
+    <button onclick="wrapMarkdown('`')">Code</button><button onclick="togglePreview()">Preview</button>
+  </div>
+  <div id="notes-container">
+    <textarea id="notes-editor" placeholder="# My Notes&#10;&#10;**bold** *italic* `code`"></textarea>
+    <div id="notes-preview"></div>
+  </div>
+</div>
+
+<!-- LIBRARY PANEL (snippets) -->
+<div id="library-panel">
+  <div class="panel-header"><span>Snippet Library</span><button class="panel-close" onclick="togglePanel('library-panel')">Close</button></div>
+  <div id="library-list"><div id="lib-empty">No saved snippets yet.<br>Use <strong>Save to Library</strong><br>to store reusable code.</div></div>
+  <div id="lib-add-btn"><button onclick="openSaveDialog()">+ Save Current Tab to Library</button></div>
+</div>
+
+<!-- TEMPLATE LIBRARY PANEL -->
+<div id="template-panel">
+  <div class="panel-header"><span>Template Library</span><button class="panel-close" onclick="togglePanel('template-panel')">Close</button></div>
+  <input type="text" id="template-search" placeholder="Search templates..." oninput="filterTemplates()">
+  <div id="template-cats"></div>
+  <div id="template-list"></div>
+</div>
+
+<script>
+/* ================================================================
+   CONSTANTS
+================================================================ */
+const EXTENSIONS = ['html','css','js','json','xml','ts','tsx','jsx','py','txt','md','yaml','yml','toml','ini','cfg','sql','sh','rb','go','rs','swift','kt','java','c','cpp','php','vue','svelte'];
+const PREVIEWABLE  = new Set(['html','htm','txt','md','svg','xml']);
+const IMAGE_EXTS   = new Set(['png','jpg','jpeg','gif','webp','svg','bmp','ico','avif']);
+const AUDIO_EXTS   = new Set(['mp3','ogg','wav','flac','aac','m4a','opus','weba']);
+const BINARY_EXTS  = new Set([...IMAGE_EXTS, ...AUDIO_EXTS]);
+// Collapsed (read-only unless "edit anyway") file types
+const COLLAPSED_EXTS = new Set(['obj','mtl','stl','fbx','dae','gltf','glb','bin','wasm','blend','3ds','ply','step','iges','dxf','iso','dmg','exe','dll','so','dylib']);
+
+const EXT_COLORS = { html:'#e44',css:'#5af',js:'#ff0',json:'#fa0',xml:'#f80',ts:'#08f',tsx:'#08f',jsx:'#0cf',py:'#0a0',md:'#c8f',txt:'#888',sh:'#0f8',sql:'#fc0',vue:'#4f4',svelte:'#f64',png:'#a6f',jpg:'#a6f',jpeg:'#a6f',gif:'#a6f',webp:'#a6f',bmp:'#a6f',ico:'#a6f',mp3:'#f96',ogg:'#f96',wav:'#f96',flac:'#f96',aac:'#f96',m4a:'#f96',opus:'#f96',obj:'#fa8',mtl:'#fa8',stl:'#fa8',fbx:'#fa8',gltf:'#fa8',glb:'#fa8' };
+const COLLAPSED_ICONS = { obj:'🧊',mtl:'🎨',stl:'🧊',fbx:'🧊',gltf:'🧊',glb:'🧊',bin:'📦',wasm:'⚙️',blend:'🎮',stl:'🧊',ply:'🧊',dxf:'📐',default:'📄' };
+function extColor(e) { return EXT_COLORS[e]||'#888'; }
+function parseFilename(n) { const d=n.lastIndexOf('.'); return d>0?{base:n.slice(0,d),ext:n.slice(d+1).toLowerCase()}:{base:n,ext:'txt'}; }
+function genId() { return '_'+Math.random().toString(36).slice(2,9); }
+function fmtTime(s) { if(!isFinite(s))return'0:00'; const m=Math.floor(s/60),ss=Math.floor(s%60); return m+':'+(ss<10?'0':'')+ss; }
+function fmtBytes(n) { return n<1024?n+'B':n<1048576?(n/1024).toFixed(1)+'KB':(n/1048576).toFixed(1)+'MB'; }
+
+/* ================================================================
+   STATE
+================================================================ */
+let tabs=[], folders=[], activeTabId=null, previewMode=false, audioEl=null;
+function currentTab() { return tabs.find(t=>t.id===activeTabId)||null; }
+
+/* ================================================================
+   PREVIEW BUTTON
+================================================================ */
+function updatePreviewBtn() {
+  const btn=document.getElementById('preview-btn');
+  const tab=currentTab();
+  if(!tab||IMAGE_EXTS.has(tab.ext)||AUDIO_EXTS.has(tab.ext)||COLLAPSED_EXTS.has(tab.ext)) { btn.disabled=true; return; }
+  btn.disabled=!PREVIEWABLE.has(tab.ext);
+}
+
+/* ================================================================
+   SHOW/HIDE EDITOR PANELS
+================================================================ */
+function showEditorMode(mode) {
+  document.getElementById('editor').style.display       = mode==='text'      ?'block':'none';
+  document.getElementById('lineNumbers').style.display  = mode==='text'      ?'block':'none';
+  document.getElementById('image-viewer').style.display = mode==='image'     ?'flex':'none';
+  document.getElementById('audio-viewer').style.display = mode==='audio'     ?'flex':'none';
+  document.getElementById('collapsed-viewer').style.display = mode==='collapsed'?'flex':'none';
+  if(mode!=='audio'&&audioEl) audioEl.pause();
+}
+
+/* ================================================================
+   COLLAPSED FILE VIEWER
+================================================================ */
+function showCollapsedTab(tab, forceEdit) {
+  if(forceEdit) {
+    showEditorMode('text');
+    document.getElementById('editor').value = tab.content||'';
+    updateLineNumbers();
+    return;
+  }
+  showEditorMode('collapsed');
+  const icon = COLLAPSED_ICONS[tab.ext]||COLLAPSED_ICONS.default;
+  document.getElementById('cv-icon').textContent = icon;
+  document.getElementById('cv-fname').textContent = tab.name;
+  const lines = (tab.content||'').split('\n');
+  const bytes = new TextEncoder().encode(tab.content||'').length;
+  document.getElementById('cv-fmeta').textContent =
+    `${tab.ext.toUpperCase()} · ${lines.length} lines · ${fmtBytes(bytes)}`;
+  // Show first 80 lines preview, dimmed
+  const preview = lines.slice(0,80).join('\n');
+  document.getElementById('cv-preview').textContent = preview;
+  document.getElementById('cv-linecount').textContent =
+    lines.length > 80 ? `…and ${lines.length-80} more lines` : `${lines.length} lines total`;
+}
+
+function editAnyway() {
+  const tab = currentTab();
+  if(!tab) return;
+  tab._forceEdit = true;
+  showEditorMode('text');
+  document.getElementById('editor').value = tab.content||'';
+  updateLineNumbers();
+  updatePreviewBtn();
+}
+
+/* ================================================================
+   IMAGE VIEWER
+================================================================ */
+function showImageTab(tab) {
+  showEditorMode('image');
+  document.getElementById('image-preview-el').src = tab.blobData||'';
+  document.getElementById('image-preview-el').alt = tab.name;
+  document.getElementById('image-info').textContent = tab.name;
+}
+
+/* ================================================================
+   AUDIO VIEWER
+================================================================ */
+function showAudioTab(tab) {
+  showEditorMode('audio');
+  if(audioEl){ audioEl.pause(); audioEl.src=''; }
+
+  const card=document.getElementById('audio-card');
+  const titleEl=document.getElementById('audio-title');
+  const artEl=document.getElementById('audio-artist');
+  const albEl=document.getElementById('audio-album');
+  const coverWrap=document.getElementById('audio-cover-wrap');
+  const seekEl=document.getElementById('audio-seek');
+  const curEl=document.getElementById('audio-cur');
+  const durEl=document.getElementById('audio-dur');
+  const volEl=document.getElementById('audio-vol');
+  const playIcon=document.getElementById('audio-play-icon');
+
+  titleEl.textContent=tab.name; artEl.textContent=''; albEl.textContent='';
+  coverWrap.innerHTML='<div class="audio-cover-placeholder"><i class="fa-solid fa-music" style="font-size:48px;color:#333;"></i></div>';
+  card.style.background=''; card.style.borderColor='';
+  playIcon.className='fa-solid fa-play';
+
+  audioEl=new Audio(tab.blobData);
+  audioEl.volume=volEl.value/100;
+  audioEl.addEventListener('loadedmetadata',()=>{ durEl.textContent=fmtTime(audioEl.duration); seekEl.max=audioEl.duration||100; });
+  audioEl.addEventListener('timeupdate',()=>{
+    curEl.textContent=fmtTime(audioEl.currentTime);
+    seekEl.value=audioEl.currentTime;
+    const pct=(audioEl.currentTime/(audioEl.duration||1))*100;
+    seekEl.style.background=`linear-gradient(to right,#fff ${pct}%,#2a2a2a ${pct}%)`;
+  });
+  audioEl.addEventListener('ended',()=>{ playIcon.className='fa-solid fa-play'; });
+  seekEl.oninput=()=>{ if(audioEl) audioEl.currentTime=seekEl.value; };
+  volEl.oninput=()=>{ if(audioEl) audioEl.volume=volEl.value/100; };
+
+  // Parse metadata based on format
+  const ext = tab.ext;
+  if(ext==='mp3') {
+    parseID3(tab.blobData).then(meta=>applyAudioMeta(meta,titleEl,artEl,albEl,coverWrap,card,tab.name));
+  } else if(ext==='m4a'||ext==='aac'||ext==='mp4') {
+    parseMP4Meta(tab.blobData).then(meta=>applyAudioMeta(meta,titleEl,artEl,albEl,coverWrap,card,tab.name));
+  } else if(ext==='ogg'||ext==='opus'||ext==='weba') {
+    parseOGGMeta(tab.blobData).then(meta=>applyAudioMeta(meta,titleEl,artEl,albEl,coverWrap,card,tab.name));
+  } else if(ext==='flac') {
+    parseFLACMeta(tab.blobData).then(meta=>applyAudioMeta(meta,titleEl,artEl,albEl,coverWrap,card,tab.name));
+  }
+}
+
+function applyAudioMeta(meta, titleEl, artEl, albEl, coverWrap, card, fallbackName) {
+  if(meta.title)  titleEl.textContent=meta.title;
+  else            titleEl.textContent=fallbackName;
+  if(meta.artist) artEl.textContent=meta.artist;
+  if(meta.album)  albEl.textContent=meta.album;
+  if(meta.cover&&meta.cover.length>50) {
+    const img=document.createElement('img');
+    img.className='audio-cover';
+    img.crossOrigin='anonymous';
+    img.src=meta.cover;
+    img.onload=()=>{
+      coverWrap.innerHTML='';
+      coverWrap.appendChild(img);
+      tintCard(img,card);
+    };
+    img.onerror=()=>{}; // keep placeholder
+  }
+}
+
+function tintCard(imgEl, card) {
+  try {
+    const c=document.createElement('canvas'); c.width=c.height=8;
+    const cx=c.getContext('2d');
+    cx.drawImage(imgEl,0,0,8,8);
+    const d=cx.getImageData(3,3,1,1).data;
+    const r=d[0],g=d[1],b=d[2];
+    card.style.background=`linear-gradient(160deg,rgba(${r},${g},${b},.22) 0%,#0d0d0d 100%)`;
+    card.style.borderColor=`rgba(${r},${g},${b},.4)`;
+  } catch(e){}
+}
+
+function toggleAudioPlay() {
+  const icon=document.getElementById('audio-play-icon');
+  if(!audioEl) return;
+  if(audioEl.paused){ audioEl.play(); icon.className='fa-solid fa-pause'; }
+  else              { audioEl.pause(); icon.className='fa-solid fa-play'; }
+}
+
+/* ================================================================
+   ID3v2 PARSER (mp3)
+================================================================ */
+async function parseID3(dataURL) {
+  const meta={title:'',artist:'',album:'',cover:''};
+  try {
+    const buf=dataURLToBytes(dataURL);
+    if(buf[0]!==0x49||buf[1]!==0x44||buf[2]!==0x33) return meta;
+    const ver=buf[3];
+    const tagSize=((buf[6]&0x7f)<<21)|((buf[7]&0x7f)<<14)|((buf[8]&0x7f)<<7)|(buf[9]&0x7f);
+    let pos=10;
+    if(buf[5]&0x40){ const extSz=((buf[10]&0x7f)<<21)|((buf[11]&0x7f)<<14)|((buf[12]&0x7f)<<7)|(buf[13]&0x7f); pos+=extSz+4; }
+    while(pos<10+tagSize-1){
+      if(ver===2){
+        if(pos+6>buf.length) break;
+        const fid=String.fromCharCode(buf[pos],buf[pos+1],buf[pos+2]);
+        const sz=(buf[pos+3]<<16)|(buf[pos+4]<<8)|buf[pos+5]; pos+=6;
+        if(sz<=0||sz>tagSize) break;
+        const d=buf.slice(pos,pos+sz);
+        if(fid==='TT2') meta.title=decodeID3Text(d);
+        if(fid==='TP1') meta.artist=decodeID3Text(d);
+        if(fid==='TAL') meta.album=decodeID3Text(d);
+        if(fid==='PIC') meta.cover=decodePIC22(d);
+        pos+=sz;
+      } else {
+        if(pos+10>buf.length) break;
+        const fid=String.fromCharCode(buf[pos],buf[pos+1],buf[pos+2],buf[pos+3]);
+        let sz;
+        if(ver===4) sz=((buf[pos+4]&0x7f)<<21)|((buf[pos+5]&0x7f)<<14)|((buf[pos+6]&0x7f)<<7)|(buf[pos+7]&0x7f);
+        else        sz=(buf[pos+4]<<24)|(buf[pos+5]<<16)|(buf[pos+6]<<8)|buf[pos+7];
+        pos+=10;
+        if(sz<=0||sz>tagSize) break;
+        const d=buf.slice(pos,pos+sz);
+        if(fid==='TIT2') meta.title=decodeID3Text(d);
+        if(fid==='TPE1') meta.artist=decodeID3Text(d);
+        if(fid==='TALB') meta.album=decodeID3Text(d);
+        if(fid==='APIC') meta.cover=decodeAPIC(d);
+        pos+=sz;
+      }
+    }
+  } catch(e){}
+  return meta;
+}
+
+function decodeID3Text(data) {
+  if(!data||data.length<2) return '';
+  const enc=data[0], raw=data.slice(1);
+  try {
+    if(enc===1||enc===2) return new TextDecoder('utf-16').decode(raw).replace(/\0/g,'').trim();
+    return new TextDecoder('utf-8').decode(raw).replace(/\0/g,'').trim();
+  } catch(e){ return ''; }
+}
+
+function decodeAPIC(data) {
+  try {
+    const enc=data[0]; let i=1;
+    let mimeEnd=i; while(mimeEnd<data.length&&data[mimeEnd]!==0) mimeEnd++;
+    const mime=new TextDecoder().decode(data.slice(i,mimeEnd))||'image/jpeg';
+    i=mimeEnd+2; // skip null + pic type
+    if(enc===1||enc===2){ while(i+1<data.length&&!(data[i]===0&&data[i+1]===0)) i++; i+=2; }
+    else { while(i<data.length&&data[i]!==0) i++; i++; }
+    return bytesToDataURL(data.slice(i), mime.includes('/')?mime:'image/jpeg');
+  } catch(e){ return ''; }
+}
+
+function decodePIC22(data) {
+  try {
+    let i=4; while(i<data.length&&data[i]!==0) i++; i++;
+    return bytesToDataURL(data.slice(i),'image/jpeg');
+  } catch(e){ return ''; }
+}
+
+/* ================================================================
+   MP4/M4A ATOM PARSER
+   Walks the iTunes metadata box: moov > udta > meta > ilst
+================================================================ */
+async function parseMP4Meta(dataURL) {
+  const meta={title:'',artist:'',album:'',cover:''};
+  try {
+    const buf=dataURLToBytes(dataURL);
+    // Find 'moov' box
+    const moov=findBox(buf,0,buf.length,'moov');
+    if(!moov) return meta;
+    const udta=findBox(buf,moov.start,moov.end,'udta');
+    if(!udta) return meta;
+    const metaBox=findBox(buf,udta.start,udta.end,'meta');
+    if(!metaBox) return meta;
+    // meta box has a 4-byte version/flags field before children
+    const ilstStart=metaBox.start+4;
+    const ilst=findBox(buf,ilstStart,metaBox.end,'ilst');
+    if(!ilst) return meta;
+
+    // Walk ilst children
+    let pos=ilst.start;
+    while(pos<ilst.end-8){
+      const sz=readU32(buf,pos);
+      if(sz<8||pos+sz>ilst.end) break;
+      const name=String.fromCharCode(buf[pos+4],buf[pos+5],buf[pos+6],buf[pos+7]);
+      // Each child has a 'data' sub-box
+      const dataBox=findBox(buf,pos+8,pos+sz,'data');
+      if(dataBox){
+        const typeFlag=readU32(buf,dataBox.start); // 1=UTF8, 13=JPEG, 14=PNG
+        const payload=buf.slice(dataBox.start+8,dataBox.end);
+        const nameKey=name.replace(/\xa9/g,'©'); // © is encoded as \xa9 in bytes
+        const isCover=(buf[pos+4]===0x63&&buf[pos+5]===0x6f&&buf[pos+6]===0x76&&buf[pos+7]===0x72)||name==='covr';
+        if(isCover||(buf[pos+5]===0x63&&buf[pos+6]===0x6f&&buf[pos+7]===0x76)) {
+          const mime=typeFlag===14?'image/png':'image/jpeg';
+          meta.cover=bytesToDataURL(payload,mime);
+        } else if(typeFlag===1||typeFlag===0) {
+          const txt=new TextDecoder('utf-8').decode(payload).replace(/\0/g,'').trim();
+          // ©nam=title, ©ART=artist, ©alb=album
+          if(buf[pos+4]===0xa9&&buf[pos+5]===0x6e&&buf[pos+6]===0x61&&buf[pos+7]===0x6d) meta.title=txt; // ©nam
+          if(buf[pos+4]===0xa9&&buf[pos+5]===0x41&&buf[pos+6]===0x52&&buf[pos+7]===0x54) meta.artist=txt; // ©ART
+          if(buf[pos+4]===0xa9&&buf[pos+5]===0x61&&buf[pos+6]===0x6c&&buf[pos+7]===0x62) meta.album=txt;  // ©alb
+        }
+      }
+      pos+=sz;
+    }
+  } catch(e){}
+  return meta;
+}
+
+function findBox(buf, start, end, fourcc) {
+  let pos=start;
+  while(pos+8<=end&&pos+8<=buf.length){
+    const sz=readU32(buf,pos);
+    if(sz<8) break;
+    const name=String.fromCharCode(buf[pos+4],buf[pos+5],buf[pos+6],buf[pos+7]);
+    if(name===fourcc) return {start:pos+8, end:Math.min(pos+sz,end)};
+    pos+=sz;
+  }
+  return null;
+}
+function readU32(buf,pos){ return((buf[pos]<<24)|(buf[pos+1]<<16)|(buf[pos+2]<<8)|buf[pos+3])>>>0; }
+
+/* ================================================================
+   OGG VORBIS COMMENT PARSER (ogg/opus/weba)
+================================================================ */
+async function parseOGGMeta(dataURL) {
+  const meta={title:'',artist:'',album:'',cover:''};
+  try {
+    const buf=dataURLToBytes(dataURL);
+    // Find OggS page with comment header (0x03 = comment type for Vorbis)
+    for(let i=0;i<buf.length-7;i++){
+      // Look for vorbis comment packet header: 0x03 + "vorbis"
+      if(buf[i]===0x03&&buf[i+1]===0x76&&buf[i+2]===0x6f&&buf[i+3]===0x72&&buf[i+4]===0x62&&buf[i+5]===0x69&&buf[i+6]===0x73){
+        let pos=i+7;
+        // vendor string length
+        const vendorLen=readU32LE(buf,pos); pos+=4+vendorLen;
+        const commentCount=readU32LE(buf,pos); pos+=4;
+        for(let c=0;c<commentCount&&pos+4<buf.length;c++){
+          const len=readU32LE(buf,pos); pos+=4;
+          if(len<=0||pos+len>buf.length) break;
+          const comment=new TextDecoder().decode(buf.slice(pos,pos+len));
+          pos+=len;
+          const eq=comment.indexOf('=');
+          if(eq<0) continue;
+          const key=comment.slice(0,eq).toUpperCase();
+          const val=comment.slice(eq+1);
+          if(key==='TITLE')        meta.title=val;
+          else if(key==='ARTIST')  meta.artist=val;
+          else if(key==='ALBUM')   meta.album=val;
+          else if(key==='METADATA_BLOCK_PICTURE') meta.cover=decodeVorbisAlbumArt(val);
+        }
+        break;
+      }
+      // Also check for OpusTags
+      if(buf[i]===0x4f&&buf[i+1]===0x70&&buf[i+2]===0x75&&buf[i+3]===0x73&&buf[i+4]===0x54&&buf[i+5]===0x61&&buf[i+6]===0x67&&buf[i+7]===0x73){
+        let pos=i+8;
+        const vendorLen=readU32LE(buf,pos); pos+=4+vendorLen;
+        const commentCount=readU32LE(buf,pos); pos+=4;
+        for(let c=0;c<commentCount&&pos+4<buf.length;c++){
+          const len=readU32LE(buf,pos); pos+=4;
+          if(len<=0||pos+len>buf.length) break;
+          const comment=new TextDecoder().decode(buf.slice(pos,pos+len)); pos+=len;
+          const eq=comment.indexOf('='); if(eq<0) continue;
+          const key=comment.slice(0,eq).toUpperCase(), val=comment.slice(eq+1);
+          if(key==='TITLE') meta.title=val;
+          else if(key==='ARTIST') meta.artist=val;
+          else if(key==='ALBUM') meta.album=val;
+          else if(key==='METADATA_BLOCK_PICTURE') meta.cover=decodeVorbisAlbumArt(val);
+        }
+        break;
+      }
+    }
+  } catch(e){}
+  return meta;
+}
+
+function readU32LE(buf,pos){ return buf[pos]|(buf[pos+1]<<8)|(buf[pos+2]<<16)|(buf[pos+3]<<24); }
+
+function decodeVorbisAlbumArt(b64) {
+  try {
+    const raw=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+    let pos=0;
+    const ptype=readU32(raw,pos); pos+=4; // picture type
+    const mimeLen=readU32(raw,pos); pos+=4;
+    const mime=new TextDecoder().decode(raw.slice(pos,pos+mimeLen)); pos+=mimeLen;
+    const descLen=readU32(raw,pos); pos+=4+descLen;
+    pos+=16; // width,height,depth,indexed
+    const dataLen=readU32(raw,pos); pos+=4;
+    return bytesToDataURL(raw.slice(pos,pos+dataLen),mime||'image/jpeg');
+  } catch(e){ return ''; }
+}
+
+/* ================================================================
+   FLAC METADATA PARSER
+================================================================ */
+async function parseFLACMeta(dataURL) {
+  const meta={title:'',artist:'',album:'',cover:''};
+  try {
+    const buf=dataURLToBytes(dataURL);
+    if(buf[0]!==0x66||buf[1]!==0x4c||buf[2]!==0x61||buf[3]!==0x43) return meta; // fLaC
+    let pos=4;
+    while(pos+4<buf.length){
+      const byte0=buf[pos];
+      const isLast=(byte0&0x80)!==0;
+      const blockType=byte0&0x7f;
+      const sz=(buf[pos+1]<<16)|(buf[pos+2]<<8)|buf[pos+3];
+      pos+=4;
+      if(blockType===4){ // VORBIS_COMMENT
+        let p=pos;
+        const vendorLen=readU32LE(buf,p); p+=4+vendorLen;
+        const cnt=readU32LE(buf,p); p+=4;
+        for(let c=0;c<cnt;c++){
+          const len=readU32LE(buf,p); p+=4;
+          const comment=new TextDecoder().decode(buf.slice(p,p+len)); p+=len;
+          const eq=comment.indexOf('='); if(eq<0) continue;
+          const key=comment.slice(0,eq).toUpperCase(), val=comment.slice(eq+1);
+          if(key==='TITLE') meta.title=val;
+          else if(key==='ARTIST') meta.artist=val;
+          else if(key==='ALBUM') meta.album=val;
+          else if(key==='METADATA_BLOCK_PICTURE') meta.cover=decodeVorbisAlbumArt(val);
+        }
+      } else if(blockType===6){ // PICTURE
+        let p=pos;
+        p+=4; // pic type
+        const mimeLen=(buf[p]<<24)|(buf[p+1]<<16)|(buf[p+2]<<8)|buf[p+3]; p+=4;
+        const mime=new TextDecoder().decode(buf.slice(p,p+mimeLen)); p+=mimeLen;
+        const descLen=(buf[p]<<24)|(buf[p+1]<<16)|(buf[p+2]<<8)|buf[p+3]; p+=4+descLen;
+        p+=16; // dimensions
+        const dataLen=(buf[p]<<24)|(buf[p+1]<<16)|(buf[p+2]<<8)|buf[p+3]; p+=4;
+        meta.cover=bytesToDataURL(buf.slice(p,p+dataLen),mime||'image/jpeg');
+      }
+      pos+=sz;
+      if(isLast) break;
+    }
+  } catch(e){}
+  return meta;
+}
+
+/* ================================================================
+   BINARY HELPERS
+================================================================ */
+function dataURLToBytes(dataURL) {
+  const b64=dataURL.split(',')[1];
+  const bin=atob(b64);
+  const buf=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) buf[i]=bin.charCodeAt(i);
+  return buf;
+}
+
+function bytesToDataURL(bytes, mime) {
+  try {
+    // Use chunks to avoid stack overflow with large arrays
+    let b64='';
+    const chunk=8192;
+    for(let i=0;i<bytes.length;i+=chunk){
+      b64+=String.fromCharCode(...bytes.slice(i,i+chunk));
+    }
+    return 'data:'+mime+';base64,'+btoa(b64);
+  } catch(e){ return ''; }
+}
+
+function dataURLtoBlobURL(dataURL, mime) {
+  try {
+    const bytes=dataURLToBytes(dataURL);
+    return URL.createObjectURL(new Blob([bytes],{type:mime}));
+  } catch(e){ return ''; }
+}
+
+/* ================================================================
+   VIRTUAL FILE SYSTEM
+================================================================ */
+let blobRegistry={};
+
+function getMime(ext) {
+  const map={css:'text/css',js:'application/javascript',json:'application/json',xml:'application/xml',svg:'image/svg+xml',txt:'text/plain',md:'text/plain',ts:'application/typescript',html:'text/html',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',bmp:'image/bmp',ico:'image/x-icon',mp3:'audio/mpeg',ogg:'audio/ogg',wav:'audio/wav',flac:'audio/flac',aac:'audio/aac',m4a:'audio/mp4',opus:'audio/opus'};
+  return map[ext]||'text/plain';
+}
+function folderPath(fid) { if(!fid) return ''; const f=folders.find(f=>f.id===fid); return f?f.name+'/':''; }
+
+function buildVirtualFS() {
+  Object.values(blobRegistry).forEach(u=>URL.revokeObjectURL(u));
+  blobRegistry={};
+  const cur=currentTab();
+  if(cur&&!BINARY_EXTS.has(cur.ext)&&!COLLAPSED_EXTS.has(cur.ext)) cur.content=document.getElementById('editor').value;
+  tabs.forEach(tab=>{
+    let url;
+    if(BINARY_EXTS.has(tab.ext)&&tab.blobData) url=dataURLtoBlobURL(tab.blobData,getMime(tab.ext));
+    else url=URL.createObjectURL(new Blob([tab.content||''],{type:getMime(tab.ext)}));
+    blobRegistry[tab.name]=url;
+    const pfix=folderPath(tab.folderId);
+    if(pfix) blobRegistry[pfix+tab.name]=url;
+  });
+}
+
+function injectVirtualFS(html) {
+  html=html.replace(/(href|src)\s*=\s*["']([^"'#?:][^"']*?)["']/gi,(m,a,v)=>{ const n=v.trim(); return blobRegistry[n]?a+'="'+blobRegistry[n]+'"':m; });
+  html=html.replace(/url\(\s*["']?([^"')#?\s][^"')]*?)["']?\s*\)/gi,(m,v)=>{ const n=v.trim(); return blobRegistry[n]?'url("'+blobRegistry[n]+'")':m; });
+  html=html.replace(/@import\s+["']([^"']+)["']/gi,(m,v)=>{ const n=v.trim(); return blobRegistry[n]?'@import "'+blobRegistry[n]+'"':m; });
+  return html;
+}
+
+/* ================================================================
+   TABS
+================================================================ */
+function createTab(name,content,folderId){
+  if(content===undefined) content='';
+  if(folderId===undefined) folderId=null;
+  const {ext}=parseFilename(name);
+  const id=genId();
+  tabs.push({id,name,ext,content,blobData:null,folderId,_forceEdit:false});
+  renderTabArea(); setActiveTab(id); saveTabs(); return id;
+}
+function createBinaryTab(name,blobData,folderId){
+  if(folderId===undefined) folderId=null;
+  const {ext}=parseFilename(name);
+  const id=genId();
+  tabs.push({id,name,ext,content:null,blobData,folderId,_forceEdit:false});
+  renderTabArea(); setActiveTab(id); saveTabs(); return id;
+}
+
+function setActiveTab(id){
+  if(activeTabId){
+    const cur=tabs.find(t=>t.id===activeTabId);
+    if(cur&&!BINARY_EXTS.has(cur.ext)&&!COLLAPSED_EXTS.has(cur.ext)) cur.content=document.getElementById('editor').value;
+    if(cur&&COLLAPSED_EXTS.has(cur.ext)&&cur._forceEdit) cur.content=document.getElementById('editor').value;
+  }
+  if(audioEl){ audioEl.pause(); document.getElementById('audio-play-icon').className='fa-solid fa-play'; }
+  activeTabId=id;
+  const tab=tabs.find(t=>t.id===id);
+  if(tab){
+    if(IMAGE_EXTS.has(tab.ext))          showImageTab(tab);
+    else if(AUDIO_EXTS.has(tab.ext))     showAudioTab(tab);
+    else if(COLLAPSED_EXTS.has(tab.ext)) showCollapsedTab(tab, tab._forceEdit);
+    else { showEditorMode('text'); document.getElementById('editor').value=tab.content||''; updateLineNumbers(); }
+  }
+  renderTabArea(); updatePreviewBtn(); saveTabs();
+}
+
+function renameTab(id,newName){
+  const tab=tabs.find(t=>t.id===id); if(!tab) return;
+  newName=newName.trim()||tab.name;
+  const {ext}=parseFilename(newName);
+  tab.name=newName; tab.ext=ext;
+  renderTabArea(); updatePreviewBtn(); saveTabs();
+}
+function closeTab(id){
+  if(tabs.length===1&&!confirm('Close the only tab?')) return;
+  const idx=tabs.findIndex(t=>t.id===id);
+  tabs.splice(idx,1);
+  if(activeTabId===id){
+    activeTabId=null;
+    if(tabs.length>0) setActiveTab(tabs[Math.max(0,idx-1)].id);
+    else{ showEditorMode('text'); document.getElementById('editor').value=''; updateLineNumbers(); }
+  }
+  renderTabArea(); updatePreviewBtn(); saveTabs();
+}
+
+/* ================================================================
+   FOLDERS
+================================================================ */
+function createFolder(){ const id=genId(); folders.push({id,name:'folder',collapsed:false}); renderTabArea(); saveTabs(); return id; }
+function renameFolder(id,n){ const f=folders.find(f=>f.id===id); if(f){f.name=n.trim()||f.name; saveTabs();} }
+function toggleFolder(id){ const f=folders.find(f=>f.id===id); if(f){f.collapsed=!f.collapsed; renderTabArea(); saveTabs();} }
+function deleteFolder(id){ tabs.forEach(t=>{if(t.folderId===id)t.folderId=null;}); folders=folders.filter(f=>f.id!==id); renderTabArea(); saveTabs(); }
+
+/* ================================================================
+   RENDER TAB AREA
+================================================================ */
+function renderTabArea(){
+  const area=document.getElementById('tab-area');
+  const rootRow=document.getElementById('root-row');
+  const controls=document.getElementById('tab-controls');
+  rootRow.querySelectorAll('.tab').forEach(el=>el.remove());
+  tabs.filter(t=>!t.folderId).forEach(tab=>rootRow.insertBefore(buildTabEl(tab),controls));
+  area.querySelectorAll('.folder-block').forEach(el=>el.remove());
+  folders.forEach(folder=>{
+    const block=document.createElement('div');
+    block.className='folder-block'+(folder.collapsed?' collapsed':'');
+    const hdr=document.createElement('div'); hdr.className='folder-header'; hdr.onclick=()=>toggleFolder(folder.id);
+    const arrow=document.createElement('span'); arrow.className='fold-arrow'; arrow.textContent='▾';
+    const ni=document.createElement('input'); ni.className='folder-name-input'; ni.value=folder.name;
+    ni.onchange=()=>renameFolder(folder.id,ni.value);
+    ni.onkeydown=e=>{if(e.key==='Enter')ni.blur();e.stopPropagation();};
+    ni.onclick=e=>e.stopPropagation();
+    const ab=document.createElement('button'); ab.className='folder-action folder-add'; ab.textContent='+'; ab.title='New file in folder';
+    ab.onclick=e=>{e.stopPropagation();openTypePicker(folder.id);};
+    const db=document.createElement('button'); db.className='folder-action folder-del'; db.textContent='×'; db.title='Delete folder';
+    db.onclick=e=>{e.stopPropagation();deleteFolder(folder.id);};
+    hdr.append(arrow,ni,ab,db);
+    const tr=document.createElement('div'); tr.className='folder-tabs';
+    tabs.filter(t=>t.folderId===folder.id).forEach(tab=>tr.appendChild(buildTabEl(tab)));
+    block.append(hdr,tr); area.appendChild(block);
+  });
+}
+
+function buildTabEl(tab){
+  const el=document.createElement('div');
+  el.className='tab'+(tab.id===activeTabId?' active':'');
+  el.onclick=e=>{ if(!e.target.classList.contains('tab-close')&&!e.target.classList.contains('tab-name-input')) setActiveTab(tab.id); };
+  const ns=document.createElement('span'); ns.className='tab-name'; ns.title=tab.name;
+  if(tab.id===activeTabId){
+    const inp=document.createElement('input'); inp.className='tab-name-input'; inp.value=tab.name;
+    inp.onchange=()=>renameTab(tab.id,inp.value);
+    inp.onkeydown=e=>{if(e.key==='Enter')inp.blur();e.stopPropagation();};
+    inp.onclick=e=>e.stopPropagation();
+    ns.appendChild(inp);
+  } else ns.textContent=tab.name;
+  const es=document.createElement('span'); es.className='tab-ext'; es.textContent=tab.ext; es.style.color=extColor(tab.ext);
+  const cb=document.createElement('button'); cb.className='tab-close'; cb.textContent='×';
+  cb.onclick=e=>{e.stopPropagation();closeTab(tab.id);};
+  el.append(ns,es,cb); return el;
+}
+
+/* ================================================================
+   TYPE PICKER
+================================================================ */
+let pickerSelectedExt='html', pickerTargetFolder=null;
+function openTypePicker(fid){ pickerTargetFolder=fid===undefined?null:fid; pickerSelectedExt='html'; document.getElementById('new-tab-name').value='untitled.html'; buildTypeGrid(); showDialog('type-picker'); }
+function buildTypeGrid(){
+  const grid=document.getElementById('type-grid'); grid.innerHTML='';
+  EXTENSIONS.forEach(ext=>{ const b=document.createElement('button'); b.className='type-btn'+(ext===pickerSelectedExt?' selected':''); b.textContent='.'+ext; b.style.color=extColor(ext); b.onclick=()=>selectExt(ext); grid.appendChild(b); });
+}
+function selectExt(ext){ pickerSelectedExt=ext; const inp=document.getElementById('new-tab-name'); const cur=inp.value,dot=cur.lastIndexOf('.'); inp.value=(dot>0?cur.slice(0,dot):cur)+'.'+ext; buildTypeGrid(); }
+function syncPickerName(){ const {ext}=parseFilename(document.getElementById('new-tab-name').value); if(EXTENSIONS.includes(ext)){pickerSelectedExt=ext;buildTypeGrid();} }
+function confirmNewTab(){ const name=document.getElementById('new-tab-name').value.trim()||('untitled.'+pickerSelectedExt); closeAllDialogs(); createTab(name,'',pickerTargetFolder); }
+
+/* ================================================================
+   DIALOGS
+================================================================ */
+function showDialog(id){ document.getElementById(id).style.display='block'; document.getElementById('overlay').classList.add('active'); }
+function closeAllDialogs(){ document.querySelectorAll('.dialog').forEach(d=>d.style.display='none'); document.getElementById('overlay').classList.remove('active'); }
+
+/* ================================================================
+   LINE NUMBERS
+================================================================ */
+function updateLineNumbers(){
+  const ed=document.getElementById('editor');
+  document.getElementById('lineNumbers').textContent=Array.from({length:ed.value.split('\n').length},(_,i)=>i+1).join('\n');
+}
+const editorEl=document.getElementById('editor');
+editorEl.addEventListener('input',()=>{ updateLineNumbers(); const t=currentTab(); if(t&&!BINARY_EXTS.has(t.ext)){t.content=editorEl.value;saveTabs();} });
+editorEl.addEventListener('scroll',()=>{ document.getElementById('lineNumbers').scrollTop=editorEl.scrollTop; });
+editorEl.addEventListener('keydown',e=>{ if(e.key==='Tab'){e.preventDefault();const s=e.target.selectionStart,en=e.target.selectionEnd;e.target.value=e.target.value.substring(0,s)+'  '+e.target.value.substring(en);e.target.selectionStart=e.target.selectionEnd=s+2;updateLineNumbers();} });
+
+/* ================================================================
+   TERMINAL
+================================================================ */
+const terminal=document.getElementById('terminal');
+function toggleTerminal(){ terminal.style.display=(!terminal.style.display||terminal.style.display==='none')?'block':'none'; }
+function logTerminal(msg,ok){ terminal.className=ok?'ok':''; terminal.textContent=msg; terminal.style.display='block'; }
+
+/* ================================================================
+   PREVIEW
+================================================================ */
+function previewHTML(){
+  terminal.textContent=''; buildVirtualFS();
+  const tab=currentTab(); if(!tab) return;
+  const html=injectVirtualFS(tab.content||'');
+  const errScript='<script>window.onerror=function(m,s,l,c){opener.postMessage({error:m,line:l,column:c},\'*\');};<\/script>\n';
+  const win=window.open('','_blank');
+  win.document.open(); win.document.write(errScript+html); win.document.close();
+  logTerminal('Program running (no errors yet)',true);
+}
+
+/* ================================================================
+   EXPORT
+================================================================ */
+function exportFile(){
+  const tab=currentTab(); if(!tab) return;
+  let url;
+  if(BINARY_EXTS.has(tab.ext)&&tab.blobData) url=dataURLtoBlobURL(tab.blobData,getMime(tab.ext));
+  else url=URL.createObjectURL(new Blob([tab.content||''],{type:'text/plain'}));
+  const a=document.createElement('a'); a.href=url; a.download=tab.name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),2000);
+}
+
+/* ================================================================
+   IMPORT (multi, binary-aware)
+================================================================ */
+function importFiles(input){
+  const files=Array.from(input.files); if(!files.length) return;
+  let done=0; const names=[];
+  files.forEach(file=>{
+    const {ext}=parseFilename(file.name);
+    const isBin=BINARY_EXTS.has(ext);
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const result=e.target.result;
+      const existing=tabs.find(t=>t.name===file.name);
+      if(isBin){
+        if(existing){existing.blobData=result;existing.content=null;setActiveTab(existing.id);}
+        else createBinaryTab(file.name,result,null);
+      } else {
+        if(existing){existing.content=result;existing.blobData=null;setActiveTab(existing.id);}
+        else createTab(file.name,result,null);
+      }
+      names.push(file.name); done++;
+      if(done===files.length) logTerminal('Imported: '+names.join(', '),true);
+    };
+    reader.onerror=()=>logTerminal('Error reading: '+file.name);
+    if(isBin) reader.readAsDataURL(file); else reader.readAsText(file);
+  });
+  input.value='';
+}
+
+window.addEventListener('message',e=>{ if(e.data&&e.data.error) logTerminal('ERROR: '+e.data.error+'\nStopped at line '+e.data.line+', column '+e.data.column); });
+
+/* ================================================================
+   TEMPLATE LIBRARY
+================================================================ */
+const TEMPLATES = [
+  // ── HTML ──
+  { cat:'HTML', name:'Basic Page', ext:'html', icon:'🌐', desc:'Minimal HTML5 boilerplate', content:`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My Page</title>\n</head>\n<body>\n  <h1>Hello World</h1>\n</body>\n</html>` },
+  { cat:'HTML', name:'Styled Page', ext:'html', icon:'🎨', desc:'HTML with linked CSS & JS files', content:`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1.0">\n  <title>My App</title>\n  <link rel="stylesheet" href="style.css">\n</head>\n<body>\n  <h1>Hello World</h1>\n  <script src="app.js"><\/script>\n</body>\n</html>` },
+  { cat:'HTML', name:'Landing Page', ext:'html', icon:'🚀', desc:'Hero section + nav + CTA', content:`<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="UTF-8">\n  <title>Landing</title>\n  <style>\n    *{margin:0;box-sizing:border-box}\n    body{font-family:sans-serif;background:#0a0a0a;color:#fff}\n    nav{display:flex;justify-content:space-between;align-items:center;padding:20px 40px;border-bottom:1px solid #222}\n    .logo{font-weight:bold;font-size:1.2em}\n    .hero{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;text-align:center;gap:20px}\n    h1{font-size:3em}\n    p{color:#888;max-width:500px}\n    .btn{background:#fff;color:#000;padding:12px 28px;border:none;border-radius:6px;cursor:pointer;font-size:1em}\n  </style>\n</head>\n<body>\n  <nav><span class="logo">MyBrand</span><span>About · Pricing · Contact</span></nav>\n  <div class="hero">\n    <h1>Build Something Great</h1>\n    <p>The fastest way to launch your next project. Zero config, full power.</p>\n    <button class="btn">Get Started</button>\n  </div>\n</body>\n</html>` },
+  { cat:'HTML', name:'Dashboard', ext:'html', icon:'📊', desc:'Sidebar layout with cards', content:`<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>Dashboard</title>\n<style>\n*{margin:0;box-sizing:border-box}\nbody{font-family:sans-serif;background:#0f0f0f;color:#eee;display:flex;height:100vh}\n.sidebar{width:220px;background:#1a1a1a;padding:20px;border-right:1px solid #2a2a2a;display:flex;flex-direction:column;gap:8px}\n.sidebar h2{font-size:14px;color:#555;text-transform:uppercase;margin-bottom:12px}\n.nav-item{padding:8px 12px;border-radius:6px;cursor:pointer;font-size:13px}\n.nav-item:hover,.nav-item.active{background:#252525}\n.main{flex:1;padding:28px;overflow-y:auto}\n.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-top:20px}\n.card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:20px}\n.card .val{font-size:2em;font-weight:bold;margin-top:8px}\n.card .lbl{font-size:12px;color:#666}\n</style></head>\n<body>\n<aside class="sidebar">\n  <h2>Dashboard</h2>\n  <div class="nav-item active">Overview</div>\n  <div class="nav-item">Analytics</div>\n  <div class="nav-item">Users</div>\n  <div class="nav-item">Settings</div>\n</aside>\n<main class="main">\n  <h1>Overview</h1>\n  <div class="cards">\n    <div class="card"><div class="lbl">Total Users</div><div class="val">2,840</div></div>\n    <div class="card"><div class="lbl">Revenue</div><div class="val">$12.4k</div></div>\n    <div class="card"><div class="lbl">Active Now</div><div class="val">142</div></div>\n    <div class="card"><div class="lbl">Uptime</div><div class="val">99.9%</div></div>\n  </div>\n</main>\n</body></html>` },
+  { cat:'HTML', name:'Login Form', ext:'html', icon:'🔐', desc:'Clean login card with validation', content:`<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>Login</title>\n<style>\n*{margin:0;box-sizing:border-box}\nbody{font-family:sans-serif;background:#0f0f0f;display:flex;align-items:center;justify-content:center;height:100vh}\n.card{background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:36px;width:360px}\nh2{margin-bottom:24px;font-size:1.4em}\n.field{margin-bottom:16px}\nlabel{display:block;font-size:12px;color:#888;margin-bottom:6px}\ninput{width:100%;padding:10px 12px;background:#111;border:1px solid #333;border-radius:6px;color:#eee;font-size:14px;outline:none}\ninput:focus{border-color:#555}\n.btn{width:100%;padding:12px;background:#fff;color:#000;border:none;border-radius:6px;cursor:pointer;font-size:14px;margin-top:8px}\n.link{text-align:center;margin-top:16px;font-size:12px;color:#666}\n</style></head>\n<body>\n<div class="card">\n  <h2>Sign In</h2>\n  <div class="field"><label>Email</label><input type="email" placeholder="you@example.com"></div>\n  <div class="field"><label>Password</label><input type="password" placeholder="••••••••"></div>\n  <button class="btn">Sign In</button>\n  <div class="link">Don't have an account? <a href="#" style="color:#aaa">Sign up</a></div>\n</div>\n</body></html>` },
+  { cat:'HTML', name:'Portfolio', ext:'html', icon:'👤', desc:'Personal portfolio with projects grid', content:`<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>Portfolio</title>\n<style>\n*{margin:0;box-sizing:border-box}\nbody{font-family:sans-serif;background:#0a0a0a;color:#eee}\nheader{padding:60px 10%;text-align:center}\nheader h1{font-size:3em;margin-bottom:8px}\nheader p{color:#666;font-size:1.1em}\n.projects{padding:40px 10%;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}\n.proj{background:#141414;border:1px solid #222;border-radius:10px;overflow:hidden}\n.proj-thumb{height:140px;background:linear-gradient(135deg,#1a1a2a,#0a1a0a)}\n.proj-info{padding:16px}\n.proj-info h3{margin-bottom:6px}\n.proj-info p{font-size:13px;color:#666}\n.tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}\n.tag{font-size:10px;background:#1e1e1e;border:1px solid #2a2a2a;border-radius:4px;padding:2px 7px;color:#888}\nfooter{text-align:center;padding:40px;color:#444;font-size:13px}\n</style></head>\n<body>\n<header>\n  <h1>Your Name</h1>\n  <p>Developer · Designer · Builder</p>\n</header>\n<div class="projects">\n  <div class="proj"><div class="proj-thumb"></div><div class="proj-info"><h3>Project One</h3><p>A cool thing I built.</p><div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span></div></div></div>\n  <div class="proj"><div class="proj-thumb" style="background:linear-gradient(135deg,#2a1a1a,#1a0a2a)"></div><div class="proj-info"><h3>Project Two</h3><p>Another cool thing.</p><div class="tags"><span class="tag">JS</span><span class="tag">API</span></div></div></div>\n</div>\n<footer>© 2025 Your Name</footer>\n</body></html>` },
+  { cat:'HTML', name:'Blog Post', ext:'html', icon:'📝', desc:'Article layout with typography', content:`<!DOCTYPE html>\n<html>\n<head><meta charset="UTF-8"><title>Blog Post</title>\n<style>\n*{margin:0;box-sizing:border-box}\nbody{font-family:Georgia,serif;background:#0f0f0f;color:#ddd;line-height:1.8}\n.container{max-width:680px;margin:0 auto;padding:60px 20px}\nheader{margin-bottom:40px}\nh1{font-size:2.2em;line-height:1.3;margin-bottom:12px}\n.meta{color:#666;font-size:13px;font-family:sans-serif}\nh2{margin:32px 0 12px;font-size:1.4em}\np{margin-bottom:20px;color:#bbb}\nblockquote{border-left:3px solid #444;padding:12px 20px;margin:24px 0;color:#888;font-style:italic}\ncode{background:#1a1a1a;padding:2px 6px;border-radius:3px;font-family:monospace;font-size:.9em;color:#0f0}\n</style></head>\n<body>\n<div class="container">\n  <header>\n    <h1>The Title of Your Post</h1>\n    <div class="meta">Jan 1, 2025 · 5 min read</div>\n  </header>\n  <p>Start your article here. This template gives you clean typography and a readable layout.</p>\n  <h2>A Section Header</h2>\n  <p>More content goes here. Keep paragraphs short for readability.</p>\n  <blockquote>A meaningful quote or callout can go here.</blockquote>\n  <p>Wrap up your thoughts here.</p>\n</div>\n</body></html>` },
+
+  // ── CSS ──
+  { cat:'CSS', name:'Reset + Base', ext:'css', icon:'🔧', desc:'Modern CSS reset and variables', content:`/* Modern CSS Reset */\n*, *::before, *::after { box-sizing: border-box; }\n* { margin: 0; }\nbody { line-height: 1.5; -webkit-font-smoothing: antialiased; }\nimg, picture, video, canvas, svg { display: block; max-width: 100%; }\ninput, button, textarea, select { font: inherit; }\np, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }\n\n:root {\n  --bg: #0f0f0f;\n  --surface: #1a1a1a;\n  --border: #2a2a2a;\n  --text: #eee;\n  --muted: #666;\n  --accent: #0f0;\n  --radius: 8px;\n  --font: 'Inter', system-ui, sans-serif;\n}\n\nbody {\n  background: var(--bg);\n  color: var(--text);\n  font-family: var(--font);\n}` },
+  { cat:'CSS', name:'Flexbox Layout', ext:'css', icon:'📐', desc:'Common flexbox utility patterns', content:`/* Flex utilities */\n.flex { display: flex; }\n.flex-col { flex-direction: column; }\n.items-center { align-items: center; }\n.items-start { align-items: flex-start; }\n.justify-center { justify-content: center; }\n.justify-between { justify-content: space-between; }\n.flex-1 { flex: 1; }\n.flex-wrap { flex-wrap: wrap; }\n.gap-4 { gap: 4px; }\n.gap-8 { gap: 8px; }\n.gap-16 { gap: 16px; }\n.gap-24 { gap: 24px; }\n\n/* Center anything */\n.center {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n}\n\n/* Full page center */\n.full-center {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  min-height: 100vh;\n}` },
+  { cat:'CSS', name:'Dark Card', ext:'css', icon:'🃏', desc:'Reusable dark card component', content:`.card {\n  background: #1a1a1a;\n  border: 1px solid #2a2a2a;\n  border-radius: 12px;\n  padding: 20px 24px;\n  transition: border-color 0.2s, transform 0.2s;\n}\n.card:hover {\n  border-color: #444;\n  transform: translateY(-2px);\n}\n.card-title { font-size: 1.1em; font-weight: 600; color: #eee; }\n.card-body { font-size: 0.9em; color: #888; margin-top: 8px; line-height: 1.6; }\n.card-footer { margin-top: 16px; display: flex; gap: 8px; align-items: center; }` },
+  { cat:'CSS', name:'Button Set', ext:'css', icon:'🔘', desc:'Primary, secondary, ghost, danger', content:`.btn {\n  display: inline-flex; align-items: center; justify-content: center;\n  gap: 6px; padding: 8px 18px;\n  border-radius: 6px; border: 1px solid transparent;\n  font-size: 13px; font-weight: 500; cursor: pointer;\n  transition: background 0.15s, transform 0.1s;\n  white-space: nowrap;\n}\n.btn:active { transform: scale(0.97); }\n.btn-primary { background: #fff; color: #000; }\n.btn-primary:hover { background: #e8e8e8; }\n.btn-secondary { background: #222; color: #eee; border-color: #444; }\n.btn-secondary:hover { background: #2e2e2e; }\n.btn-ghost { background: transparent; color: #aaa; border-color: #333; }\n.btn-ghost:hover { background: #1a1a1a; color: #eee; }\n.btn-danger { background: #2a1a1a; color: #f55; border-color: #4a2a2a; }\n.btn-danger:hover { background: #3a1e1e; }\n.btn:disabled { opacity: 0.35; pointer-events: none; }` },
+
+  // ── JS ──
+  { cat:'JS', name:'Fetch API', ext:'js', icon:'🌐', desc:'Async fetch with error handling', content:`async function fetchData(url, options = {}) {\n  try {\n    const res = await fetch(url, {\n      headers: { 'Content-Type': 'application/json' },\n      ...options\n    });\n    if (!res.ok) throw new Error(\`HTTP \${res.status}: \${res.statusText}\`);\n    return await res.json();\n  } catch (err) {\n    console.error('Fetch error:', err);\n    throw err;\n  }\n}\n\n// POST helper\nasync function post(url, body) {\n  return fetchData(url, { method: 'POST', body: JSON.stringify(body) });\n}\n\n// Usage:\n// const data = await fetchData('https://api.example.com/items');\n// const result = await post('/api/users', { name: 'Alice' });` },
+  { cat:'JS', name:'Event Bus', ext:'js', icon:'📡', desc:'Simple pub/sub event emitter', content:`class EventBus {\n  constructor() { this._events = {}; }\n\n  on(event, fn) {\n    (this._events[event] ||= []).push(fn);\n    return () => this.off(event, fn);\n  }\n\n  off(event, fn) {\n    this._events[event] = (this._events[event]||[]).filter(f => f !== fn);\n  }\n\n  emit(event, ...args) {\n    (this._events[event]||[]).forEach(fn => fn(...args));\n  }\n\n  once(event, fn) {\n    const unsub = this.on(event, (...args) => { fn(...args); unsub(); });\n  }\n}\n\nconst bus = new EventBus();\n// bus.on('change', data => console.log(data));\n// bus.emit('change', { value: 42 });` },
+  { cat:'JS', name:'Local Storage', ext:'js', icon:'💾', desc:'Safe localStorage wrapper', content:`const store = {\n  get(key, fallback = null) {\n    try {\n      const v = localStorage.getItem(key);\n      return v !== null ? JSON.parse(v) : fallback;\n    } catch { return fallback; }\n  },\n  set(key, value) {\n    try { localStorage.setItem(key, JSON.stringify(value)); return true; }\n    catch { return false; }\n  },\n  remove(key) { localStorage.removeItem(key); },\n  clear() { localStorage.clear(); },\n  has(key) { return localStorage.getItem(key) !== null; }\n};\n\n// Usage:\n// store.set('user', { name: 'Alice', theme: 'dark' });\n// const user = store.get('user', {});` },
+  { cat:'JS', name:'DOM Helpers', ext:'js', icon:'🧩', desc:'jQuery-style DOM utilities', content:`const $ = sel => document.querySelector(sel);\nconst $$ = sel => [...document.querySelectorAll(sel)];\nconst create = (tag, attrs={}, ...children) => {\n  const el = document.createElement(tag);\n  Object.entries(attrs).forEach(([k,v]) => {\n    if (k==='class') el.className=v;\n    else if (k==='style'&&typeof v==='object') Object.assign(el.style,v);\n    else if (k.startsWith('on')) el.addEventListener(k.slice(2),v);\n    else el.setAttribute(k,v);\n  });\n  children.flat().forEach(c => el.append(typeof c==='string'?document.createTextNode(c):c));\n  return el;\n};\n\n// Usage:\n// const btn = create('button',{class:'btn',onclick:()=>alert('hi')},'Click me');\n// $('body').appendChild(btn);` },
+  { cat:'JS', name:'Debounce + Throttle', ext:'js', icon:'⏱', desc:'Performance utilities', content:`function debounce(fn, delay) {\n  let timer;\n  return function(...args) {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn.apply(this, args), delay);\n  };\n}\n\nfunction throttle(fn, interval) {\n  let last = 0;\n  return function(...args) {\n    const now = Date.now();\n    if (now - last >= interval) {\n      last = now;\n      return fn.apply(this, args);\n    }\n  };\n}\n\n// Usage:\n// const onSearch = debounce(val => search(val), 300);\n// const onScroll = throttle(() => updateNav(), 100);` },
+
+  // ── JSON ──
+  { cat:'JSON', name:'Package.json', ext:'json', icon:'📦', desc:'Node.js package manifest', content:`{\n  "name": "my-project",\n  "version": "1.0.0",\n  "description": "",\n  "main": "index.js",\n  "scripts": {\n    "start": "node index.js",\n    "dev": "nodemon index.js",\n    "test": "jest"\n  },\n  "keywords": [],\n  "author": "",\n  "license": "MIT",\n  "dependencies": {},\n  "devDependencies": {}\n}` },
+  { cat:'JSON', name:'Config File', ext:'json', icon:'⚙️', desc:'App configuration template', content:`{\n  "app": {\n    "name": "MyApp",\n    "version": "1.0.0",\n    "port": 3000,\n    "debug": false\n  },\n  "database": {\n    "host": "localhost",\n    "port": 5432,\n    "name": "mydb"\n  },\n  "auth": {\n    "secret": "change-this-secret",\n    "expiresIn": "7d"\n  },\n  "features": {\n    "darkMode": true,\n    "analytics": false\n  }\n}` },
+  { cat:'JSON', name:'API Response', ext:'json', icon:'🔌', desc:'REST API response envelope', content:`{\n  "status": "success",\n  "code": 200,\n  "data": {\n    "items": [\n      { "id": 1, "name": "Item One", "active": true },\n      { "id": 2, "name": "Item Two", "active": false }\n    ],\n    "total": 2,\n    "page": 1,\n    "perPage": 20\n  },\n  "meta": {\n    "requestId": "req_abc123",\n    "timestamp": "2025-01-01T00:00:00Z"\n  }\n}` },
+
+  // ── Python ──
+  { cat:'Python', name:'Script Boilerplate', ext:'py', icon:'🐍', desc:'CLI script with argparse', content:`#!/usr/bin/env python3\n"""Description of what this script does."""\n\nimport argparse\nimport sys\n\n\ndef main(args):\n    print(f"Hello, {args.name}!")\n\n\nif __name__ == "__main__":\n    parser = argparse.ArgumentParser(description=__doc__)\n    parser.add_argument("name", help="Your name")\n    parser.add_argument("-v", "--verbose", action="store_true")\n    args = parser.parse_args()\n    sys.exit(main(args))` },
+  { cat:'Python', name:'Flask App', ext:'py', icon:'🌶️', desc:'Minimal Flask web server', content:`from flask import Flask, jsonify, request\n\napp = Flask(__name__)\n\n@app.route('/')\ndef index():\n    return jsonify({'status': 'ok', 'message': 'Hello World'})\n\n@app.route('/api/items', methods=['GET'])\ndef get_items():\n    items = [{'id': 1, 'name': 'Item One'}]\n    return jsonify({'items': items})\n\n@app.route('/api/items', methods=['POST'])\ndef create_item():\n    data = request.get_json()\n    return jsonify({'created': data}), 201\n\nif __name__ == '__main__':\n    app.run(debug=True, port=5000)` },
+  { cat:'Python', name:'Data Classes', ext:'py', icon:'📊', desc:'Dataclass models with validation', content:`from dataclasses import dataclass, field\nfrom typing import Optional, List\nfrom datetime import datetime\n\n\n@dataclass\nclass User:\n    id: int\n    name: str\n    email: str\n    created_at: datetime = field(default_factory=datetime.now)\n    tags: List[str] = field(default_factory=list)\n    bio: Optional[str] = None\n\n    def __post_init__(self):\n        if '@' not in self.email:\n            raise ValueError(f"Invalid email: {self.email}")\n        self.name = self.name.strip()\n\n    def to_dict(self):\n        return {\n            'id': self.id,\n            'name': self.name,\n            'email': self.email,\n        }\n\n\n# Usage:\n# user = User(id=1, name='Alice', email='alice@example.com')\n# print(user.to_dict())` },
+
+  // ── Markdown ──
+  { cat:'Markdown', name:'README', ext:'md', icon:'📖', desc:'Standard project README', content:`# Project Name\n\n> One-line description of the project.\n\n## Features\n\n- ✅ Feature one\n- ✅ Feature two\n- 🚧 Feature in progress\n\n## Getting Started\n\n\`\`\`bash\nnpm install\nnpm start\n\`\`\`\n\n## Usage\n\n\`\`\`js\nconst thing = require('thing');\nthing.doStuff();\n\`\`\`\n\n## Contributing\n\nPull requests welcome. Open an issue first for major changes.\n\n## License\n\n[MIT](LICENSE)` },
+  { cat:'Markdown', name:'Changelog', ext:'md', icon:'📋', desc:'Keep a changelog format', content:`# Changelog\n\nAll notable changes to this project will be documented here.\n\n## [Unreleased]\n\n### Added\n- New feature\n\n### Changed\n- Updated thing\n\n### Fixed\n- Bug fix\n\n## [1.0.0] - 2025-01-01\n\n### Added\n- Initial release\n- Core functionality\n- Documentation` },
+];
+
+let activeTplCat = 'All';
+
+function buildTemplateCats() {
+  const cats = ['All', ...new Set(TEMPLATES.map(t=>t.cat))];
+  const bar = document.getElementById('template-cats'); bar.innerHTML='';
+  cats.forEach(cat=>{
+    const b=document.createElement('button'); b.className='tcat-btn'+(cat===activeTplCat?' active':'');
+    b.textContent=cat; b.onclick=()=>{ activeTplCat=cat; buildTemplateCats(); filterTemplates(); };
+    bar.appendChild(b);
+  });
+}
+
+function filterTemplates() {
+  const q=document.getElementById('template-search').value.toLowerCase();
+  const list=document.getElementById('template-list'); list.innerHTML='';
+  TEMPLATES.filter(t=>{
+    const catMatch=activeTplCat==='All'||t.cat===activeTplCat;
+    const qMatch=!q||(t.name+t.desc+t.cat).toLowerCase().includes(q);
+    return catMatch&&qMatch;
+  }).forEach((tmpl,i)=>{
+    const el=document.createElement('div'); el.className='tmpl-item';
+    el.innerHTML=`<div class="tmpl-header"><span class="tmpl-icon">${tmpl.icon}</span><span class="tmpl-name">${tmpl.name}</span><span class="tmpl-ext">.${tmpl.ext}</span></div><div class="tmpl-desc">${tmpl.desc}</div><button class="tmpl-use-btn" onclick="useTemplate(${TEMPLATES.indexOf(tmpl)})">Use Template</button>`;
+    list.appendChild(el);
+  });
+}
+
+function useTemplate(idx) {
+  const tmpl=TEMPLATES[idx]; if(!tmpl) return;
+  const tab=currentTab();
+  if(tab&&tab.ext===tmpl.ext&&(!tab.content||tab.content.trim()==='')){
+    // Use current empty tab
+    tab.content=tmpl.content;
+    editorEl.value=tmpl.content;
+    updateLineNumbers(); saveTabs();
+  } else {
+    // Create new tab
+    createTab(tmpl.name.replace(/\s+/g,'_').toLowerCase()+'.'+tmpl.ext, tmpl.content, null);
+  }
+  // Don't close the panel — user may want multiple templates
+  logTerminal(`Template "${tmpl.name}" loaded.`, true);
+}
+
+/* ================================================================
+   PANELS
+================================================================ */
+function togglePanel(id){ document.getElementById(id).classList.toggle('active'); }
+
+/* ================================================================
+   NOTES
+================================================================ */
+const notesEditorEl=document.getElementById('notes-editor'), notesPreviewEl=document.getElementById('notes-preview');
+function insertMarkdown(s){ const start=notesEditorEl.selectionStart,txt=notesEditorEl.value; let ls=start; while(ls>0&&txt[ls-1]!=='\n')ls--; notesEditorEl.value=txt.substring(0,ls)+s+txt.substring(ls); notesEditorEl.selectionStart=notesEditorEl.selectionEnd=ls+s.length; notesEditorEl.focus(); saveNotes(); }
+function wrapMarkdown(w){ const s=notesEditorEl.selectionStart,e2=notesEditorEl.selectionEnd,t=notesEditorEl.value,sel=t.substring(s,e2); if(sel){notesEditorEl.value=t.substring(0,s)+w+sel+w+t.substring(e2);notesEditorEl.selectionStart=s+w.length;notesEditorEl.selectionEnd=e2+w.length;}else{notesEditorEl.value=t.substring(0,s)+w+w+t.substring(e2);notesEditorEl.selectionStart=notesEditorEl.selectionEnd=s+w.length;} notesEditorEl.focus();saveNotes(); }
+function togglePreview(){ previewMode=!previewMode; notesEditorEl.style.display=previewMode?'none':'block'; notesPreviewEl.style.display=previewMode?'block':'none'; if(previewMode)renderMarkdown(); }
+function renderMarkdown(){ let h=notesEditorEl.value; h=h.replace(/^######\s(.*?)$/gm,'<h6>$1</h6>').replace(/^#####\s(.*?)$/gm,'<h5>$1</h5>').replace(/^####\s(.*?)$/gm,'<h4>$1</h4>').replace(/^###\s(.*?)$/gm,'<h3>$1</h3>').replace(/^##\s(.*?)$/gm,'<h2>$1</h2>').replace(/^#\s(.*?)$/gm,'<h1>$1</h1>').replace(/```([\s\S]*?)```/g,'<pre><code>$1</code></pre>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/\*([^*]+)\*/g,'<em>$1</em>'); h=h.split('\n\n').map(p=>(!p.match(/^<h[1-6]>/)&&!p.match(/^<pre>/))? '<p>'+p+'</p>':p).join('\n'); notesPreviewEl.innerHTML=h; }
+function saveNotes(){ localStorage.setItem('editorNotes',notesEditorEl.value); if(previewMode)renderMarkdown(); }
+notesEditorEl.addEventListener('input',saveNotes);
+notesEditorEl.value=localStorage.getItem('editorNotes')||'';
+
+/* ================================================================
+   LIBRARY (snippets)
+================================================================ */
+function loadLibrary(){ try{return JSON.parse(localStorage.getItem('editorLibrary')||'[]');}catch(e){return[];} }
+function saveLibrary(l){ localStorage.setItem('editorLibrary',JSON.stringify(l)); }
+function renderLibrary(){
+  const lib=loadLibrary(),list=document.getElementById('library-list'),empty=document.getElementById('lib-empty');
+  list.querySelectorAll('.lib-item').forEach(el=>el.remove());
+  if(!lib.length){empty.style.display='block';return;} empty.style.display='none';
+  lib.forEach((item,idx)=>{
+    const el=document.createElement('div'); el.className='lib-item';
+    const {ext}=parseFilename(item.name); const preview=(item.content||'').trim().slice(0,80).replace(/\n/g,' ');
+    el.innerHTML='<div class="lib-item-header"><span class="lib-item-name" title="'+item.name+'">'+item.name+'</span><span class="lib-item-ext" style="color:'+extColor(ext)+';">.'+ext+'</span></div><div class="lib-preview">'+(preview||'(empty)')+'</div><div class="lib-item-actions"><button class="lib-open-tab" onclick="libOpenTab('+idx+')">Open in Tab</button><button class="lib-copy" onclick="libCopy('+idx+')">Copy</button><button class="lib-delete" onclick="libDelete('+idx+')">Delete</button></div>';
+    list.appendChild(el);
+  });
+}
+function openSaveDialog(){ const t=currentTab(); document.getElementById('save-name').value=t?t.name:'snippet.txt'; showDialog('save-dialog'); }
+function confirmSaveToLibrary(){
+  const name=document.getElementById('save-name').value.trim(); if(!name){alert('Enter a name.');return;}
+  const content=editorEl.value; const lib=loadLibrary(); const ei=lib.findIndex(i=>i.name===name);
+  if(ei>=0){if(!confirm('"'+name+'" exists. Overwrite?'))return;lib[ei].content=content;}else lib.push({name,content});
+  saveLibrary(lib);renderLibrary();closeAllDialogs();logTerminal('Saved "'+name+'" to library.',true);
+}
+function libOpenTab(idx){ const lib=loadLibrary(),item=lib[idx]; if(!item)return; const ex=tabs.find(t=>t.name===item.name); if(ex)setActiveTab(ex.id); else createTab(item.name,item.content||'',null); }
+function libCopy(idx){ const lib=loadLibrary(),item=lib[idx]; if(!item)return; navigator.clipboard.writeText(item.content||'').then(()=>logTerminal('Copied "'+item.name+'".',true)).catch(()=>logTerminal('Clipboard access denied.')); }
+function libDelete(idx){ const lib=loadLibrary(); if(!confirm('Delete "'+lib[idx].name+'"?'))return; lib.splice(idx,1);saveLibrary(lib);renderLibrary(); }
+
+/* ================================================================
+   PERSISTENCE
+================================================================ */
+function saveTabs(){
+  const t=currentTab();
+  if(t&&!BINARY_EXTS.has(t.ext)&&(t._forceEdit||!COLLAPSED_EXTS.has(t.ext))) t.content=editorEl.value;
+  try{
+    const light=tabs.map(t=>({...t,blobData:t.blobData?'__BINARY__':null}));
+    localStorage.setItem('editorTabs',JSON.stringify(light));
+    localStorage.setItem('editorFolders',JSON.stringify(folders));
+    localStorage.setItem('editorActiveTab',activeTabId||'');
+  }catch(e){}
+}
+function loadSavedTabs(){
+  try{
+    const st=JSON.parse(localStorage.getItem('editorTabs')||'[]');
+    const sf=JSON.parse(localStorage.getItem('editorFolders')||'[]');
+    const sa=localStorage.getItem('editorActiveTab')||'';
+    if(st.length>0){
+      tabs=st.filter(t=>t.blobData!=='__BINARY__');
+      folders=sf; activeTabId=tabs.find(t=>t.id===sa)?sa:(tabs[0]?.id||null);
+      renderTabArea();
+      const tab=currentTab();
+      if(tab&&!BINARY_EXTS.has(tab.ext)&&!IMAGE_EXTS.has(tab.ext)&&!AUDIO_EXTS.has(tab.ext)){
+        if(COLLAPSED_EXTS.has(tab.ext)){ showCollapsedTab(tab,tab._forceEdit); }
+        else{ showEditorMode('text'); editorEl.value=tab.content||''; updateLineNumbers(); }
+      }
+      return tabs.length>0;
+    }
+  }catch(e){}
+  return false;
+}
+
+/* ================================================================
+   CLEAR
+================================================================ */
+function clearEditor(){
+  const t=currentTab(); if(BINARY_EXTS.has(t?.ext)||COLLAPSED_EXTS.has(t?.ext)) return;
+  if(!editorEl.value.trim()) return;
+  if(confirm('Clear current tab?')){ editorEl.value=''; if(t){t.content='';saveTabs();} updateLineNumbers(); }
+}
+
+/* ================================================================
+   INIT
+================================================================ */
+if(!loadSavedTabs()) createTab('index.html','',null);
+renderLibrary();
+buildTemplateCats();
+filterTemplates();
+updateLineNumbers();
+updatePreviewBtn();
+</script>
+</body>
+</html>

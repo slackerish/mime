@@ -1,0 +1,2218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Slackerish | Home</title>
+
+<link id="favicon" rel="icon" href="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/favicons/favicon.png" />
+
+<!-- font: preconnect eliminates DNS+TLS round-trip; swap avoids render-block -->
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" media="print" onload="this.media='all'" />
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" /></noscript>
+
+<!-- stylesheets first — theme vars must exist before body paints -->
+<style>
+/* ==========================================
+   DEFAULT THEME (Redux — image-based)
+   Applied to :root, used when no theme attr is set
+   ========================================== */
+:root {
+  --main-bg:    url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/Redux-mainbg.png");
+  --quote-bg:   url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/Redux-quotebg.png");
+  --header-bg:  url("https://raw.githubusercontent.com/01110010-00110101/themeify/main/redux/Redux-headerbg.png");
+  --footer-bg:  #555;
+  --card-bg:    rgba(0,0,0,0);
+  --menu-bg:    rgba(0,0,0,0.95);
+
+  --text-color:         #000;
+  --link-color:         #fff;
+  --quote-text:         #fff;
+  --accent-color:       #ff4444;
+
+  --input-bg:           #f0f0f0;
+  --input-border:       #ccc;
+  --input-text:         #333;
+  --input-placeholder:  #888;
+  --search-btn-bg:      #333;
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   CLASSIC THEME
+   ========================================== */
+body[theme="classic"] {
+  --main-bg:    #d4d4d4;
+  --quote-bg:   #1d201f;
+  --header-bg:  #1d201f;
+  --footer-bg:  #555;
+  --card-bg:    rgba(0,0,0,0);
+  --menu-bg:    rgba(0,0,0,0.95);
+
+  --text-color:         #000;
+  --link-color:         #fff;
+  --quote-text:         #fff;
+  --accent-color:       #ff4444;
+
+  --input-bg:           #f0f0f0;
+  --input-border:       #ccc;
+  --input-text:         #333;
+  --input-placeholder:  #888;
+  --search-btn-bg:      #333;
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   LIGHT THEME
+   ========================================== */
+body[theme="light"] {
+  --main-bg:    #f4f4f4;
+  --quote-bg:   #f1f1f1;
+  --header-bg:  #e0e0e0;
+  --footer-bg:  #ccc;
+  --card-bg:    #ffffff;
+  --menu-bg:    rgba(255,255,255,0.95);
+
+  --text-color:         #111;
+  --link-color:         #222;
+  --quote-text:         #111;
+  --accent-color:       #e53935;
+
+  --input-bg:           #eee;
+  --input-border:       #aaa;
+  --input-text:         #111;
+  --input-placeholder:  #666;
+  --search-btn-bg:      #555;
+
+  --status-ok-border:   #00c853;
+  --status-fix-border:  #d32f2f;
+  --shadow-color:       rgba(0,0,0,0.15);
+}
+
+/* ==========================================
+   DARK THEME
+   ========================================== */
+body[theme="dark"] {
+  --main-bg:    #1e1e1e;
+  --quote-bg:   #292929;
+  --header-bg:  #0d0d0d;
+  --footer-bg:  #222;
+  --card-bg:    #2b2b2b;
+  --menu-bg:    rgba(0,0,0,0.9);
+
+  --text-color:         #f4f4f4;
+  --link-color:         #f4f4f4;
+  --quote-text:         #f4f4f4;
+  --accent-color:       #00bcd4;
+
+  --input-bg:           #333;
+  --input-border:       #555;
+  --input-text:         #f4f4f4;
+  --input-placeholder:  #999;
+  --search-btn-bg:      #1e1e1e;
+
+  --status-ok-border:   #00ff88;
+  --status-fix-border:  #ff5555;
+  --shadow-color:       rgba(0,0,0,0.5);
+}
+
+/* ==========================================
+   SLACKERISH THEME
+   ========================================== */
+body[theme="slackerish"] {
+  --main-bg:    #131112;
+  --quote-bg:   #1a1818;
+  --header-bg:  #342A21;
+  --footer-bg:  #342A21;
+  --card-bg:    #1b1717;
+  --menu-bg:    rgba(0,0,0,0.95);
+
+  --text-color:         #fff;
+  --link-color:         #ffbcbc;
+  --quote-text:         #ffbcbc;
+  --accent-color:       #ff4444;
+
+  --input-bg:           #2a2220;
+  --input-border:       #5a4740;
+  --input-text:         #f4f4f4;
+  --input-placeholder:  #b8b8b8;
+  --search-btn-bg:      #3a2f28;
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.6);
+}
+
+/* ==========================================
+   REDUX THEME — Image-based
+   ========================================== */
+body[theme="redux"] {
+  --main-bg:    url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/redux-white_bg.png");
+  --quote-bg:   url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/background_grey_icons.png");
+  --header-bg:  url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/background_black_icons.png");
+  --footer-bg:  #555;
+  --card-bg:    rgba(0,0,0,0);
+  --menu-bg:    rgba(0,0,0,0.95);
+
+  --text-color:         #000;
+  --link-color:         #fff;
+  --quote-text:         #fff;
+  --accent-color:       #ff4444;
+
+  --input-bg:           #f0f0f0;
+  --input-border:       #ccc;
+  --input-text:         #333;
+  --input-placeholder:  #888;
+  --search-btn-bg:      #333;
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   IMAGE-BASED THEMES
+   Shared pattern: transparent UI, image background
+   ========================================== */
+
+/* --- Graduation --- */
+body[theme="graduation"] {
+  --main-bg:    url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/graduation.png");
+  --quote-bg:   rgba(0,0,0,0.3);
+  --header-bg:  rgba(0,0,0,0.3);
+  --footer-bg:  rgba(0,0,0,0.4);
+  --card-bg:    rgba(0,0,0,0);
+  --menu-bg:    rgba(0,0,0,0.9);
+
+  --text-color:         #fff;
+  --link-color:         #fff;
+  --quote-text:         #fff;
+  --accent-color:       #ff4444;
+
+  --input-bg:           rgba(0,0,0,0.3);
+  --input-border:       #ccc;
+  --input-text:         #fff;
+  --input-placeholder:  #ccc;
+  --search-btn-bg:      rgba(0,0,0,0.5);
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.3);
+}
+
+/* --- Flower Boy --- */
+body[theme="flower-boy"] {
+  --main-bg:    url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/flower-boy_bg.jpeg");
+  --quote-bg:   rgba(0,0,0,0.3);
+  --header-bg:  rgba(0,0,0,0.3);
+  --footer-bg:  rgba(0,0,0,0.4);
+  --card-bg:    rgba(0,0,0,0);
+  --menu-bg:    rgba(0,0,0,0.9);
+
+  --text-color:         #fff;
+  --link-color:         #fff;
+  --quote-text:         #fff;
+  --accent-color:       #ff4444;
+
+  --input-bg:           rgba(0,0,0,0.3);
+  --input-border:       #ccc;
+  --input-text:         #fff;
+  --input-placeholder:  #ccc;
+  --search-btn-bg:      rgba(0,0,0,0.5);
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.3);
+}
+
+/* --- Star Platinum --- */
+body[theme="star-platnium"] {
+  --main-bg:    url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/star-platnium_bg.jpeg");
+  --quote-bg:   rgba(0,0,0,0.3);
+  --header-bg:  rgba(0,0,0,0.3);
+  --footer-bg:  rgba(0,0,0,0.4);
+  --card-bg:    rgba(0,0,0,0);
+  --menu-bg:    rgba(0,0,0,0.9);
+
+  --text-color:         #fff;
+  --link-color:         #fff;
+  --quote-text:         #fff;
+  --accent-color:       #ff4444;
+
+  --input-bg:           rgba(0,0,0,0.3);
+  --input-border:       #ccc;
+  --input-text:         #fff;
+  --input-placeholder:  #ccc;
+  --search-btn-bg:      rgba(0,0,0,0.5);
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.3);
+}
+
+/* --- Star Platinum vs The World --- */
+body[theme="star-world"] {
+  --main-bg:    url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/the-starly-world_bg.jpeg");
+  --quote-bg:   rgba(0,0,0,0.3);
+  --header-bg:  rgba(0,0,0,0.3);
+  --footer-bg:  rgba(0,0,0,0.4);
+  --card-bg:    rgba(0,0,0,0);
+  --menu-bg:    rgba(0,0,0,0.9);
+
+  --text-color:         #fff;
+  --link-color:         #fff;
+  --quote-text:         #fff;
+  --accent-color:       #ff4444;
+
+  --input-bg:           rgba(0,0,0,0.3);
+  --input-border:       #ccc;
+  --input-text:         #fff;
+  --input-placeholder:  #ccc;
+  --search-btn-bg:      rgba(0,0,0,0.5);
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.3);
+}
+
+/* --- The King --- */
+body[theme="the-king"] {
+  --main-bg:    url("https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/backgrounds/the-king-crimson-card_bg.jpeg");
+  --quote-bg:   rgba(0,0,0,0.3);
+  --header-bg:  rgba(0,0,0,0.3);
+  --footer-bg:  rgba(0,0,0,0.4);
+  --card-bg:    rgba(0,0,0,0);
+  --menu-bg:    rgba(0,0,0,0.9);
+
+  --text-color:         #fff;
+  --link-color:         #fff;
+  --quote-text:         #fff;
+  --accent-color:       #ff4444;
+
+  --input-bg:           rgba(0,0,0,0.3);
+  --input-border:       #ccc;
+  --input-text:         #fff;
+  --input-placeholder:  #ccc;
+  --search-btn-bg:      rgba(0,0,0,0.5);
+
+  --status-ok-border:   #00ff00;
+  --status-fix-border:  #ff0000;
+  --shadow-color:       rgba(0,0,0,0.3);
+}
+
+/* ==========================================
+   Global Reset
+   ========================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Re-enable text selection inside inputs */
+input, textarea {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  user-select: text;
+}
+
+/* Remove outlines globally */
+a, button, input, textarea {
+  outline: none !important;
+}
+
+/* ==========================================
+   HTML & Body — Background
+   ========================================== */
+html {
+  height: 100%;
+  background-image: var(--main-bg);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center center;
+}
+
+body {
+  min-height: 100%;
+  background: transparent;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ==========================================
+   Links
+   ========================================== */
+a, a:visited {
+  color: var(--link-color);
+  text-decoration: none;
+}
+a:focus { outline: none; }
+
+/* ==========================================
+   Header & Navigation
+   ========================================== */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--header-bg);
+  padding: 10px 20px;
+  width: 100%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+header a, footer a {
+  margin: 0 10px;
+  color: var(--link-color);
+  font-family: monospace;
+  font-weight: bold;
+  text-decoration: none;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+header a:hover, footer a:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+}
+
+header img {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ==========================================
+   Top Bar
+   ========================================== */
+#topBar {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 20;
+  background: var(--header-bg);
+  color: var(--link-color);
+}
+
+#topBar header {
+  z-index: 21;
+}
+
+/* ==========================================
+   Page Controls (Prev / Next)
+   ========================================== */
+.pages-anchor {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 10px;
+}
+
+.pages-anchor button {
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pages-anchor button img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.pages-anchor button:hover img {
+  transform: scale(1.2);
+}
+
+.pages-anchor .page-indicator {
+  font-family: monospace;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: var(--link-color);
+  user-select: none;
+}
+
+/* ==========================================
+   Profile Picture & Dashboard Button
+   ========================================== */
+#pfp {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+  transition: transform 0.25s ease;
+}
+#pfp:hover { transform: scale(1.1); }
+
+#dashboardBtn {
+  width: 36px;
+  background: none;
+  border: none;
+  color: var(--link-color);
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+#dashboardBtn:hover { transform: scale(1.1); }
+
+/* ==========================================
+   Dashboard Menu
+   ========================================== */
+.dashboard-menu {
+  position: fixed;
+  top: 60px;
+  right: 20px;
+  background: var(--menu-bg);
+  border-radius: 10px;
+  display: none;
+  flex-direction: column;
+  min-width: 200px;
+  padding: 10px 0;
+  z-index: 9999;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.dashboard-menu a,
+.dashboard-menu p {
+  padding: 10px 16px;
+  color: var(--link-color);
+  font-family: monospace;
+  display: block;
+  transition: color 0.3s, background 0.3s, text-decoration 0.3s;
+}
+
+.dashboard-menu p {
+  font-weight: bold;
+  cursor: default;
+}
+
+.dashboard-menu a:hover,
+.dashboard-menu p:hover {
+  color: var(--accent-color);
+  background: rgba(255,255,255,0.1);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-color);
+}
+
+/* ==========================================
+   Search Bar
+   ========================================== */
+.search-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--input-bg);
+  border-radius: 25px;
+  padding: 4px 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  transition: box-shadow 0.2s;
+}
+.search-box:focus-within { box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+
+.search-box input {
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: var(--input-text);
+  font-family: monospace;
+  font-size: 14px;
+  flex: 1;
+}
+.search-box input::placeholder { color: var(--input-placeholder); }
+.search-box input:focus { outline: none; box-shadow: none; }
+
+.search-box button {
+  padding: 6px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  background: var(--search-btn-bg);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, filter 0.2s;
+}
+.search-box button:hover { transform: scale(1.1); filter: brightness(1.2); }
+.search-box button img { width: 14px; height: 14px; }
+
+.search-error {
+  display: none;
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff4d4d;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  z-index: 1000;
+}
+
+#searchFeedback {
+  display: none;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  text-align: center;
+}
+#searchFeedback img {
+  max-height: 120px;
+  border-radius: 8px;
+}
+
+/* ==========================================
+   Quote Ticker
+   ========================================== */
+#quoteWrapper {
+  position: relative;
+  width: 100vw;
+  height: 30px;
+  overflow: hidden;
+  background: var(--quote-bg);
+  color: var(--quote-text);
+  display: flex;
+  align-items: center;
+}
+
+#quoteBox {
+  position: absolute;
+  white-space: nowrap;
+  font-family: monospace;
+  font-size: 1em;
+  font-weight: bold;
+  background: var(--quote-bg);
+  color: var(--quote-text);
+  transform: translateX(100%);
+  user-select: none;
+  cursor: default;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.quote-sticker {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  vertical-align: middle;
+  pointer-events: none;
+}
+
+/* ==========================================
+   Asset Grid — 5 Columns
+   ========================================== */
+#container,
+#container-discov {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  justify-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: transparent;
+  flex-grow: 1;
+  min-height: 0;
+  align-content: start;
+}
+
+@media (max-width: 800px) {
+  #container,
+  #container-discov {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ==========================================
+   Asset Cards
+   ========================================== */
+#container div,
+#container-discov div {
+  width: 100%;
+  max-width: 220px;
+  padding: 15px 10px;
+  background: var(--card-bg);
+  text-align: center;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: transform 0.2s ease;
+}
+
+#container div:hover,
+#container-discov div:hover {
+  transform: scale(1.03);
+}
+
+#container div img,
+#container-discov div img {
+  width: 120px;
+  height: 120px;
+  display: block;
+  border-radius: 14px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+#container div img:hover,
+#container-discov div img:hover {
+  transform: scale(1.05);
+}
+
+/* ==========================================
+   Card Text
+   ========================================== */
+#container div h3,
+#container div p,
+#container-discov div h3,
+#container-discov div p {
+  color: var(--link-color);
+  font-family: monospace;
+  font-size: 0.9rem;
+  transition: color 0.3s, text-decoration 0.3s;
+}
+#container div h3:hover,
+#container div p:hover,
+#container-discov div h3:hover,
+#container-discov div p:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* ==========================================
+   Status Overlays: Featured / New / Fixed
+   ========================================== */
+.asset-link img.status-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  opacity: 1;
+  border-radius: 14px;
+  transition: opacity 0.25s ease;
+  z-index: 2;
+}
+
+.asset-link:hover img.status-overlay {
+  opacity: 0.55;
+}
+
+/* ==========================================
+   SOON Status
+   ========================================== */
+.soon {
+  position: relative;
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(100%);
+}
+
+.soon::after {
+  content: "COMING SOON";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 4px #000;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.soon img {
+  filter: grayscale(100%);
+  opacity: 0.7;
+  transition: opacity 0.25s ease;
+}
+
+.soon:hover img { opacity: 0.55; }
+.soon:hover {
+  border: 2px solid #ff0000;
+  box-shadow: 0 0 10px #ff0000;
+}
+
+/* ==========================================
+   FIX Status
+   ========================================== */
+.fix {
+  position: relative;
+  pointer-events: none;
+  filter: grayscale(100%);
+  opacity: 0.8;
+}
+
+.fix img {
+  filter: grayscale(100%);
+  opacity: 0.9;
+  background: #808080;
+  mix-blend-mode: multiply;
+}
+
+.fix::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(128,128,128,0.2);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.fix:hover {
+  border: 2px solid #ff0000;
+  box-shadow: 0 0 10px rgba(255,0,0,0.7);
+}
+
+/* ==========================================
+   Sort / Theme Buttons
+   ========================================== */
+.theme-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.theme-btn {
+  padding: 10px 16px;
+  border: 2px solid var(--accent-color);
+  background: var(--header-bg);
+  color: var(--text-color);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.theme-btn:hover {
+  transform: scale(1.05);
+  background: var(--accent-color);
+  color: #fff;
+}
+.theme-btn.active {
+  background: var(--accent-color);
+  color: #fff;
+  box-shadow: 0 0 10px var(--accent-color);
+}
+
+/* ==========================================
+   Preloader Progress Bar
+   ========================================== */
+.load-progress-text {
+  font-family: monospace;
+  color: #fff;
+  text-align: center;
+  margin-top: 10px;
+}
+.load-progress-bar {
+  width: 80%;
+  height: 8px;
+  margin: 10px auto;
+  background: rgba(255,255,255,0.2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.load-progress-fill {
+  width: 0%;
+  height: 100%;
+  background: linear-gradient(90deg, #00ffff, #ff00ff);
+  transition: width 0.3s ease;
+}
+
+/* ==========================================
+   Back to Top Button
+   ========================================== */
+#toTopBtn {
+  position: fixed;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-family: monospace;
+  border: none;
+  border-radius: 8px;
+  background: var(--header-bg);
+  color: var(--link-color);
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  opacity: 0.6;
+  transition: opacity 0.3s, color 0.3s;
+}
+#toTopBtn.show {
+  display: block !important;
+  opacity: 0.75 !important;
+  pointer-events: auto !important;
+}
+#toTopBtn:hover {
+  opacity: 0.8;
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* ==========================================
+   Footer
+   ========================================== */
+footer {
+  margin-top: auto;
+  background: var(--footer-bg);
+  text-align: center;
+  padding: 30px;
+  width: 100%;
+  font-family: monospace;
+  color: var(--link-color);
+  box-shadow: 0 -2px 6px rgba(0,0,0,0.2);
+}
+
+/* ==========================================
+   Misc Utility
+   ========================================== */
+embed {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+/* card reveal — must be inline so it exists before body paints */
+* { margin:0; padding:0; box-sizing:border-box; font-family:"Poppins",sans-serif; }
+
+@keyframes cardPopIn {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.92); }
+  60%  { transform: translateY(-3px) scale(1.03); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.asset-card {
+  opacity: 0;
+  transform: translateY(10px) scale(0.92);
+  transition: none;
+  pointer-events: none;
+}
+.asset-card.ready {
+  animation: cardPopIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: auto;
+}
+
+/* loading gif centred in the container grid */
+#containerLoader {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 80px 0;
+  width: 100%;
+}
+#containerLoader img {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 192px !important;
+  height: 192px !important;
+  min-width: 64px !important;
+  min-height: 64px !important;
+  max-width: 192px !important;
+  max-height: 192px !important;
+  object-fit: contain !important;
+  opacity: 1 !important;
+  image-rendering: pixelated !important;
+  pointer-events: none !important;
+}
+</style>
+
+<!-- preload the loading spinner so it shows before JS runs -->
+<link rel="preload" as="image" href="loading.gif" />
+
+
+<meta property="og:title" content="WannaSmile" />
+<meta property="og:description" content="WannaSmile is a personal web project showcasing various tools, pages, and experiments." />
+<meta property="og:image" content="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/meta/images/11.png" />
+<meta property="og:url" content="https://vvannasmile.github.io/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="WannaSmile" />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="WannaSmile" />
+<meta name="twitter:description" content="A personal web project featuring tools, pages, and visual elements." />
+<meta name="twitter:image" content="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/meta/images/11.png" />
+</head>
+
+<body>
+<div id="intro-overlay">
+  <img src="intro.png" id="intro-image" alt="Intro">
+</div>
+
+<style>
+#intro-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  z-index: 999999999;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 1;
+  transition: opacity 0.6s ease;
+}
+
+#intro-overlay.fade-out {
+  opacity: 0;
+}
+
+#intro-image {
+  width: 500px;
+  height: 500px;
+  object-fit: contain;
+}
+</style>
+
+<script>
+const overlay = document.getElementById("intro-overlay");
+
+if (sessionStorage.getItem("introPlayed")) {
+  overlay.remove();
+} else {
+  sessionStorage.setItem("introPlayed", "true");
+
+  setTimeout(() => {
+    overlay.classList.add("fade-out");
+
+    setTimeout(() => {
+      overlay.remove();
+    }, 800);
+  }, 8000);
+}
+</script>
+<!-- Top Bar / Header -->
+<div id="topBar">
+<header>
+<nav class="nav-links">
+<a href="index.html" target="_blank">Home</a>
+<a href="../pages/header/favorites.html" target="_blank">Favorites</a>
+<a href="../pages/header/discovery.html" target="_blank">Discovery</a>
+<a href="../pages/header/settings.html" target="_blank">Settings</a>
+<a href="../pages/header/support.html" target="_blank">Support</a>
+<a href="../pages/header/info.html" target="_blank">Info</a>
+<div class="pages-anchor">
+<button class="arrowleft" onclick="prevPage()">
+<img src="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/icons/left.png">
+</button>
+<span class="page-indicator">...</span>
+<button class="arrowright" onclick="nextPage()">
+<img src="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/icons/right.png">
+</button>
+<a href="file:///home/chronos/u-60669c90ae9cf5cb2408ad4c3a1da05bcafdd551/MyFiles/Downloads/SoundScape/index.html#" target="_blank">SoundScape</a>
+<a href="#" id="downloadBtn">DOWNLOAD V0.8!</a>
+</div>
+</nav>
+
+<div class="header-controls">
+<div class="search-box">
+<input id="searchInputHeader" type="text" placeholder="Search..." />
+<button id="searchBtnHeader">
+<img src="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/icons/search.png">
+</button>
+</div>
+<a href="../pages/header/profile.html">
+<img id="pfp" src="../system/images/icons/profile.png">
+</a>
+<button id="dashboardBtn">
+<img src="https://raw.githubusercontent.com/5lackerish/5lackerish.github.io/main/system/images/icons/dashboard.png">
+</button>
+</div>
+</header>
+
+<div id="quoteWrapper">
+<p id="quoteBox"></p>
+</div>
+</div>
+
+<aside id="dashboardMenu" class="dashboard-menu">
+<a href="BEANS.md">Layout Pages</a>
+<a href="gn.html">Library</a>
+</aside>
+
+<main>
+<div id="container">
+  <div id="containerLoader">
+    <img src="loading.gif" alt="" />
+  </div>
+</div>
+</main>
+
+<button id="toTopBtn">⬆ Top</button>
+
+<footer>
+<a href="https://sundaezipper.github.io./" target="_blank">Source</a>
+<a href="https://sundaezipper.github.io./" target="_blank">Contribute</a>
+<a href="https://discord.gg/4AKdJxJUMH" target="_blank">Discord</a>
+<a href="../pages/footer/SBF.html" target="_blank">Suggestions | Bugs | Fixes</a>
+<a href="../pages/footer/social.html" target="_blank">Socials</a>
+<a href="../pages/footer/download.html" target="_blank">download versions</a>
+<a href="../pages/footer/version.html" id="footerVersion" target="_blank">Version loading...</a>
+</footer>
+
+<audio id="bgm" autoplay muted></audio>
+
+<!-- External Widgets -->
+<script async defer src="https://cdn.jsdelivr.net/npm/@widgetbot/crate@3"></script>
+<script>
+window.addEventListener("load", () => {
+  if (typeof Crate !== "undefined") {
+    new Crate({
+      server: "1451796462517096642",
+      channel: "1451796463368667218"
+    });
+  }
+});
+</script>
+
+<!-- Core JS -->
+<script>
+const images=[
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/bleh.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/catcher.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/clown.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/clowninabox.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/dream.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/eye.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/eyes.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/glitched.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/me.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/purpleu.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/sleeppy.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/smile.png",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/starry.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/starwalk.jpeg",
+"https://cdn.jsdelivr.net/gh/mcmattyobriore/yogurtyooo.github.io@main/system/images/profile/yum.jpeg"
+];
+window.addEventListener("DOMContentLoaded",()=>{
+document.getElementById("pfp").src=images[Math.floor(Math.random()*images.length)];
+});
+</script>
+
+<script>
+/**
+ * system/js/settings.js
+ * Unified logic for handling Settings (Theme, Cloak, Panic, Password)
+ */
+
+// ============================================================
+// TOAST (non-blocking small alert)
+// ============================================================
+function showToast(message, timeout = 2200) {
+  const t = document.createElement("div");
+  t.textContent = message;
+  Object.assign(t.style, {
+    position: "fixed",
+    bottom: "28px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    background: "rgba(0,0,0,0.8)",
+    color: "#fff",
+    padding: "10px 14px",
+    borderRadius: "8px",
+    fontFamily: "monospace",
+    zIndex: 99999,
+    opacity: "0",
+    transition: "opacity 220ms ease",
+    pointerEvents: "none",
+  });
+  document.body.appendChild(t);
+  requestAnimationFrame(() => (t.style.opacity = "1"));
+  setTimeout(() => {
+    t.style.opacity = "0";
+    setTimeout(() => t.remove(), 300);
+  }, timeout);
+}
+
+// ============================================================
+// GLOBAL HELPERS
+// ============================================================
+function setFavicon(url) {
+  let link = document.querySelector("link[rel~='icon']");
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "icon";
+    document.head.appendChild(link);
+  }
+  link.href = url && url.startsWith("http") ? url : (url ? `system/${url}` : "");
+}
+
+// ============================================================
+// AUTO-APPLY CLOAK ON LOAD
+// ============================================================
+(function applyGlobalCloak() {
+  const savedTitle = localStorage.getItem("cloakTitle");
+  const savedIcon = localStorage.getItem("cloakIcon");
+  if (savedTitle) document.title = savedTitle;
+  if (savedIcon) setFavicon(savedIcon);
+})();
+
+// Sync cloak changes across tabs
+window.addEventListener("storage", (e) => {
+  if (e.key === "cloakTitle" && e.newValue) document.title = e.newValue;
+  if (e.key === "cloakIcon" && e.newValue) setFavicon(e.newValue);
+});
+
+// ============================================================
+// SETTINGS PAGE LOGIC
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+  const settingsPage = document.querySelector(".settings-page");
+  if (!settingsPage) return;
+
+  // --- Cached Elements ---
+  const webnameInput = document.getElementById("webname");
+  const webiconInput = document.getElementById("webicon");
+  const presetCloaksSelect = document.getElementById("presetCloaks");
+  const panicInput = document.getElementById("panicURL");
+  const passInput = document.getElementById("pass");
+
+  // --- Initialize Saved Values ---
+  if (webnameInput) webnameInput.value = localStorage.getItem("cloakTitle") || "";
+  if (webiconInput) webiconInput.value = localStorage.getItem("cloakIcon") || "";
+  if (panicInput) panicInput.value = localStorage.getItem("panicURL") || "";
+
+  // ============================================================
+  // CLOAK CONTROLS
+  // ============================================================
+  const CLOAK_PRESETS = {
+    google: { title: "Google", icon: "icons/google.png" },
+    drive: { title: "My Drive - Google Drive", icon: "icons/drive.png" },
+    classroom: { title: "Classes", icon: "icons/classroom.png" },
+    newtab: { title: "New Tab", icon: "icons/newtab.png" },
+    docs: { title: "Untitled document - Google Docs", icon: "icons/docs.png" },
+    schoology: { title: "Schoology", icon: "icons/schoology.png" },
+  };
+
+  presetCloaksSelect?.addEventListener("change", () => {
+    const preset = CLOAK_PRESETS[presetCloaksSelect.value];
+    if (preset) {
+      if (webnameInput) webnameInput.value = preset.title;
+      if (webiconInput) webiconInput.value = preset.icon;
+    }
+  });
+
+  window.setCloakCookie = function (e) {
+    e?.preventDefault();
+    if (webnameInput) localStorage.setItem("cloakTitle", webnameInput.value.trim());
+    if (webiconInput) localStorage.setItem("cloakIcon", webiconInput.value.trim());
+    if (webnameInput?.value) document.title = webnameInput.value;
+    if (webiconInput?.value) setFavicon(webiconInput.value);
+    showToast("Tab cloak set!");
+  };
+
+  window.clearCloak = function () {
+    localStorage.removeItem("cloakTitle");
+    localStorage.removeItem("cloakIcon");
+    document.title = "Settings | 10x76 Test 005";
+    setFavicon("images/10x76.png");
+    if (webnameInput) webnameInput.value = "";
+    if (webiconInput) webiconInput.value = "";
+    showToast("Cloak cleared!");
+  };
+
+  // ============================================================
+  // PANIC & PASSWORD
+  // ============================================================
+  window.setPanicMode = function (e) {
+    e?.preventDefault();
+    if (panicInput && panicInput.value.trim()) {
+      localStorage.setItem("panicURL", panicInput.value.trim());
+      showToast("Panic URL saved!");
+    }
+  };
+
+  window.setPassword = function (e) {
+    e?.preventDefault();
+    const pw = passInput?.value.trim();
+    if (!pw) return showToast("Enter a password first.");
+    localStorage.setItem("accessPassword", pw);
+    showToast("Access password set!");
+  };
+
+  window.delPassword = function () {
+    localStorage.removeItem("accessPassword");
+    if (passInput) passInput.value = "";
+    showToast("Password cleared!");
+  };
+});
+
+// ============================================================
+// SORT MODE TOGGLE (Sheet Order / Alphabetical)
+// ============================================================
+document.addEventListener("DOMContentLoaded", () => {
+  const sheetOrderBtn = document.getElementById("sheetOrderBtn");
+  const alphabeticalBtn = document.getElementById("alphabeticalBtn");
+
+  if (!sheetOrderBtn || !alphabeticalBtn) return;
+
+  const savedMode = localStorage.getItem("sortMode") || "sheet";
+  updateSortModeButtons(savedMode);
+
+  sheetOrderBtn.addEventListener("click", () => {
+    setSortMode("sheet");
+  });
+
+  alphabeticalBtn.addEventListener("click", () => {
+    setSortMode("alphabetical");
+  });
+
+  function setSortMode(mode) {
+    localStorage.setItem("sortMode", mode);
+    updateSortModeButtons(mode);
+    showToast(`Sort mode set to: ${mode === "sheet" ? "Sheet Order" : "Alphabetical"}`);
+    document.dispatchEvent(new CustomEvent("sortModeChanged", { detail: mode }));
+  }
+
+  function updateSortModeButtons(mode) {
+    sheetOrderBtn.classList.toggle("active", mode === "sheet");
+    alphabeticalBtn.classList.toggle("active", mode === "alphabetical");
+  }
+});
+
+// ============================================================
+// GLOBAL PANIC ESCAPE (Esc key)
+// ============================================================
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    const panicURL = localStorage.getItem("panicURL");
+    if (panicURL) window.location.href = panicURL;
+  }
+});
+
+// ---- index.js ----
+// Handles update popup, dashboard toggle, scroll-to-top, and profile picture
+
+document.addEventListener("DOMContentLoaded", () => {
+  // --- Cached DOM elements ---
+  const popup = document.getElementById("updatePopup");
+  const video = document.getElementById("updateVideo");
+  const closeBtn = document.getElementById("closeUpdateBtn");
+  const viewUpdateBtn = document.getElementById("viewUpdateBtn");
+  const viewInfoBtn = document.getElementById("viewUpdateInfoBtn");
+  const dontShowBtn = document.getElementById("dontShowBtn");
+  const dashboardMenu = document.getElementById("dashboardMenu");
+  const dashboardBtn = document.getElementById("dashboardBtn");
+  const toTopBtn = document.getElementById("toTopBtn");
+  const pfp = document.getElementById("pfp");
+
+  // --- UPDATE POPUP BUTTON WIRING ---
+  // (Popup visibility is managed by initUpdatePopup in the main IIFE)
+  function stopVideo() {
+    if (!video) return;
+    const src = video.src;
+    video.src = "";
+    video.src = src;
+  }
+
+  function closePopup() {
+    if (!popup) return;
+    popup.classList.remove("show");
+    sessionStorage.setItem("updatePopupClosed", "true");
+    stopVideo();
+  }
+
+  if (popup) {
+    closeBtn?.addEventListener("click", closePopup);
+    dontShowBtn?.addEventListener("click", () => {
+      const version = document.getElementById("footerVersion")?.textContent?.replace("Version ", "").trim() || "v0.8";
+      localStorage.setItem("dismissedUpdateVersion", version);
+      closePopup();
+    });
+
+    viewUpdateBtn?.addEventListener("click", () =>
+      window.open("system/pages/updates.html", "_blank")
+    );
+    viewInfoBtn?.addEventListener("click", () =>
+      window.open("system/pages/update-info.html", "_blank")
+    );
+  }
+
+  // --- DASHBOARD TOGGLE ---
+  if (dashboardBtn && dashboardMenu) {
+    dashboardMenu.style.display = "none";
+    dashboardMenu.style.opacity = 0;
+    dashboardMenu.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+
+    const toggleDashboard = (e) => {
+      e.stopPropagation();
+      const isVisible = dashboardMenu.style.display === "block";
+      if (isVisible) {
+        dashboardMenu.style.opacity = 0;
+        dashboardBtn.setAttribute("aria-expanded", "false");
+        dashboardMenu.setAttribute("aria-hidden", "true");
+        setTimeout(() => (dashboardMenu.style.display = "none"), 300);
+      } else {
+        dashboardMenu.style.display = "block";
+        dashboardBtn.setAttribute("aria-expanded", "true");
+        dashboardMenu.setAttribute("aria-hidden", "false");
+        setTimeout(() => (dashboardMenu.style.opacity = 1), 10);
+      }
+    };
+
+    dashboardBtn.addEventListener("click", toggleDashboard);
+    document.addEventListener("click", (e) => {
+      const isOpen = dashboardMenu.style.display === "block";
+      const clickedOutside = !dashboardMenu.contains(e.target) && e.target !== dashboardBtn;
+      if (isOpen && clickedOutside) toggleDashboard(e);
+    });
+  }
+
+  // --- SCROLL TO TOP BUTTON ---
+  if (toTopBtn) {
+    const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+
+    const handleScroll = () => {
+      const scrollY = document.body.scrollTop || document.documentElement.scrollTop;
+      toTopBtn.style.display = scrollY > 200 ? "block" : "none";
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    toTopBtn.addEventListener("click", scrollToTop);
+    toTopBtn.addEventListener("dblclick", scrollToTop);
+
+    handleScroll(); // initialize state
+  }
+
+  // --- PROFILE PICTURE LOADER ---
+  if (pfp) {
+    const savedPic = localStorage.getItem("profilePic");
+    if (savedPic) pfp.src = savedPic;
+  }
+});
+
+/* ==========================================================
+   WannaSmile | Unified JS Loader & UI Logic
+   Preloader-Free Rewrite
+   ========================================================== */
+(() => {
+  "use strict";
+
+  /* ---------------------------
+     Utilities
+  --------------------------- */
+  const clamp = (v, a = 0, b = 100) => Math.min(b, Math.max(a, v));
+  const delay = (ms) => new Promise((r) => setTimeout(r, ms));
+  const safeStr = (v) => (v == null ? "" : String(v));
+  const rafAsync = () => new Promise((r) => requestAnimationFrame(r));
+  const debounce = (fn, ms = 150) => {
+    let t;
+    return (...args) => {
+      clearTimeout(t);
+      t = setTimeout(() => fn(...args), ms);
+    };
+  };
+
+  /* ---------------------------
+     Sort Mode Control
+  --------------------------- */
+  const getSortMode = () => localStorage.getItem("sortMode") || "sheet";
+  document.addEventListener("sortModeChanged", () => {
+    if (window.assetsData && typeof window.refreshCards === "function") {
+      window.refreshCards();
+    }
+  });
+
+  /* ---------------------------
+     DOM & Config Initialization
+  --------------------------- */
+  function initElements() {
+    const $ = (sel) => {
+      try {
+        if (!sel) return null;
+        if (/^[A-Za-z0-9\-_]+$/.test(sel)) return document.getElementById(sel);
+        return document.querySelector(sel) || null;
+      } catch {
+        return null;
+      }
+    };
+
+    window.dom = {
+      container: $("#container"),
+      pageIndicator: $(".page-indicator") || $("#page-indicator"),
+      searchInput: $("#searchInputHeader"),
+      searchBtn: $("#searchBtnHeader"),
+      updatePopup: $("#updatePopup"),
+      updatePopupContent: $(".update-popup-content"),
+      viewUpdateBtn: $("#viewUpdateBtn"),
+      viewUpdateInfoBtn: $("#viewUpdateInfoBtn"),
+      closeUpdateBtn: $("#closeUpdateBtn"),
+      dontShowBtn: $("#dontShowBtn"),
+      updateVideo: $("#updateVideo"),
+    };
+
+    window.config = {
+      fallbackImage:
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/404_blank.png",
+      fallbackLink: "https://01110010-00110101.github.io./source/dino/",
+      gifBase:
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/GIF/",
+      sheetUrl:
+        "https://script.google.com/macros/s/AKfycbyRGROJ70xwLEBLiWAw_7iSX42VkJSxg671wOmjfYo_cvvaDSs9mbXpK6S1EKa9oYQByA/exec", // AKfycbyRGROJ70xwLEBLiWAw_7iSX42VkJSxg671wOmjfYo_cvvaDSs9mbXpK6S1EKa9oYQByA
+      updateTrailerSrc: "",
+      updateLink: "system/pages/version-log.html",
+      quotesJson:
+        "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/json/quotes.json",
+    };
+  }
+
+  /* ---------------------------
+     Favorites System
+  --------------------------- */
+  function initFavorites() {
+    try {
+      const stored = JSON.parse(localStorage.getItem("favorites") || "[]");
+      window.favorites = new Set(stored.map((s) => safeStr(s).toLowerCase()));
+    } catch {
+      window.favorites = new Set();
+    }
+
+    window.saveFavorites = () =>
+      localStorage.setItem("favorites", JSON.stringify([...window.favorites]));
+
+    window.refreshCards = () => {
+      if (!window.assetsData || typeof createAssetCards !== "function") return [];
+      const promises = createAssetCards(window.assetsData);
+      if (typeof renderPage === "function") renderPage();
+      if (typeof startPlaceholderCycle === "function") startPlaceholderCycle();
+      return promises;
+    };
+  }
+
+  /* ---------------------------
+     Asset Card Builder
+  --------------------------- */
+  function createAssetCards(data) {
+    const { container } = dom || {};
+    if (!container) return [];
+
+    // wipe loading gif + old cards
+    container.innerHTML = "";
+    const imagePromises = [];
+    const frag = document.createDocumentFragment();
+    const sortMode = getSortMode();
+    const isFav = (t) => window.favorites.has(safeStr(t).toLowerCase());
+
+    let sorted = Array.isArray(data) ? [...data] : [];
+    if (sortMode === "alphabetical") {
+      sorted.sort((a, b) =>
+        safeStr(a.title).localeCompare(safeStr(b.title), undefined, { numeric: true, sensitivity: "base" })
+      );
+    }
+
+    const badgeMap = {
+      featured: "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/featured-cover.png",
+      new:      "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/new-cover.png",
+      fixed:    "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/fixed-cover.png",
+      fix:      "https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/fixing.png",
+    };
+
+    let cardIndex = 0;
+    for (const asset of sorted) {
+      const title       = safeStr(asset.title).trim();
+      const author      = safeStr(asset.author).trim();
+      const imageSrc    = safeStr(asset.image) || config.fallbackImage;
+      const link        = safeStr(asset.link)  || config.fallbackLink;
+      const pageNum     = Number(asset.page)   || 1;
+      const status      = safeStr(asset.status).toLowerCase();
+      const statusField = safeStr(asset.type || asset.status || "").toLowerCase();
+
+      const card = document.createElement("div");
+      card.className = "asset-card"; // opacity:0 until image ready
+      // Stagger pop so cards animate in sequence (max 40ms gap, capped at 600ms total)
+      const staggerDelay = Math.min(cardIndex * 40, 600);
+      cardIndex++;
+      Object.assign(card.dataset, {
+        title: title.toLowerCase(), author: author.toLowerCase(),
+        page: String(pageNum), filtered: "true",
+      });
+
+      const a = document.createElement("a");
+      a.href = link;
+      a.className = "asset-link";
+      // target/_blank intentionally omitted — the click interceptor handles
+      // all navigation: sheet-matched links get the embed wrapper, others
+      // get a normal new tab opened programmatically.
+
+      // Click interceptor — check if this card's link exists in sheet data (col c).
+      // If it does, open a blob embed tab; otherwise open a plain new tab.
+      a.addEventListener("click", (e) => {
+        e.preventDefault();
+
+        const matched = window.assetsData?.find(
+          (row) => safeStr(row.link).trim() === link
+        );
+
+        if (matched) {
+          const embedLink   = safeStr(matched.link).trim();
+          const renderTitle = safeStr(matched.title).trim() || "Embed";
+          const renderFav   = safeStr(matched.image).trim() || "";
+
+          const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>${renderTitle}</title>
+  <link rel="icon" href="${renderFav}" crossorigin="anonymous" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: #000; }
+    embed {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      border: none;
+      display: block;
+    }
+    #refreshBtn {
+      position: fixed;
+      top: 8px; right: 8px;
+      z-index: 9999;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-family: monospace;
+      font-size: 13px;
+      cursor: pointer;
+      opacity: 0.4;
+      transition: opacity 0.2s;
+    }
+    #refreshBtn:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <embed id="frame" src="${embedLink}" />
+  <button id="refreshBtn" title="Refresh" onclick="document.getElementById('frame').src=document.getElementById('frame').src">↺</button>
+</body>
+</html>`;
+
+          const blob    = new Blob([html], { type: "text/html;charset=utf-8" });
+          const blobUrl = URL.createObjectURL(blob);
+          window.open(blobUrl, "_blank");
+          // Revoke after a short delay — the tab has loaded its own copy by then
+          setTimeout(() => URL.revokeObjectURL(blobUrl), 8000);
+        } else {
+          // No sheet match — open the raw link in a normal new tab, no about:blank
+          window.open(link, "_blank");
+        }
+      });
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "asset-img-wrapper";
+      Object.assign(wrapper.style, { position:"relative", display:"inline-block", borderRadius:"14px", overflow:"hidden" });
+
+      const img = document.createElement("img");
+      img.alt = title; img.className = "asset-img";
+
+      // each card reveals itself independently with stagger
+      const reveal = () => {
+        setTimeout(() => card.classList.add("ready"), staggerDelay);
+      };
+      const imgPromise = new Promise((resolve) => {
+        img.onload  = () => { reveal(); resolve(); };
+        img.onerror = () => {
+          img.src     = config.fallbackImage;
+          img.onload  = () => { reveal(); resolve(); };
+          img.onerror = () => { reveal(); resolve(); };
+        };
+        img.src = imageSrc;
+      });
+      imagePromises.push({ promise: imgPromise, page: pageNum });
+      wrapper.appendChild(img);
+
+      const addOverlay = (src, alt, cls, fullCover = false) => {
+        const o = document.createElement("img");
+        o.src = src; o.alt = alt; o.className = `status-overlay ${cls}`;
+        Object.assign(o.style, { position:"absolute", top:"0", left:"0", width:"100%", height:"100%",
+          objectFit:"cover", pointerEvents:"none", zIndex: fullCover ? "10" : "5" });
+        wrapper.appendChild(o);
+      };
+
+      if (statusField === "featured") addOverlay(badgeMap.featured, "featured badge", "overlay-featured");
+      if (statusField === "new")      addOverlay(badgeMap.new,      "new badge",      "overlay-new");
+      if (statusField === "fixed")    addOverlay(badgeMap.fixed,    "fixed badge",    "overlay-fixed");
+      if (["new","updated"].includes(status))
+        addOverlay(`${config.gifBase}${status}.gif`, `${status} badge`, `status-gif status-${status}`);
+      if (status === "fix") { addOverlay(badgeMap.fix, "fixing overlay", "overlay-fix", true); card.classList.add("fix"); }
+      if (status === "soon") card.classList.add("soon");
+
+      a.appendChild(wrapper);
+      const titleEl  = document.createElement("h3"); titleEl.textContent  = title  || "Untitled";
+      const authorEl = document.createElement("p");  authorEl.textContent = author || "";
+
+      const star = document.createElement("button");
+      star.className = "favorite-star"; star.textContent = isFav(title) ? "★" : "☆";
+      Object.assign(star.style, { background:"transparent", border:"none", cursor:"pointer" });
+      star.addEventListener("click", (e) => {
+        e.preventDefault(); e.stopPropagation();
+        const key = title.toLowerCase();
+        if (window.favorites.has(key)) window.favorites.delete(key); else window.favorites.add(key);
+        saveFavorites(); star.textContent = window.favorites.has(key) ? "★" : "☆";
+      });
+
+      card.append(a, titleEl, authorEl, star);
+      frag.appendChild(card);
+    }
+
+    container.appendChild(frag);
+    return imagePromises;
+  }
+
+  /* ---------------------------
+     Paging + Search + Filter
+  --------------------------- */
+  function initPaging() {
+    const { container, pageIndicator, searchInput, searchBtn } = dom || {};
+    if (!container) return;
+
+    const quoteWrapper = document.getElementById("quoteWrapper");
+
+let errorGif = document.getElementById("noResultsGif");
+if (!errorGif) {
+  errorGif = document.createElement("img");
+  errorGif.id = "noResultsGif";
+  errorGif.src = "searching.gif";
+  Object.assign(errorGif.style, {
+    display: "none",
+    position: "absolute",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+    width: "128px",
+    height: "128px",
+    opacity: "0",
+    transition: "opacity 0.25s ease",
+    pointerEvents: "none",
+    zIndex: "1000",
+
+    // pixelated rendering
+    imageRendering: "pixelated",
+  });
+  container.parentElement.appendChild(errorGif);
+}
+
+    const getAllCards = () => [...container.querySelectorAll(".asset-card")];
+    const getFilteredCards = () =>
+      getAllCards().filter((c) => c.dataset.filtered === "true");
+    const getPages = () =>
+      [...new Set(getAllCards().map((c) => +c.dataset.page).filter(Boolean))].sort(
+        (a, b) => a - b
+      );
+
+    const updateVisibility = () => {
+      const visibleCards = getFilteredCards().length;
+      if (visibleCards === 0) {
+        errorGif.style.display = "block";
+        requestAnimationFrame(() => (errorGif.style.opacity = "1"));
+      } else {
+        errorGif.style.opacity = "0";
+        setTimeout(() => {
+          if (parseFloat(errorGif.style.opacity) === 0)
+            errorGif.style.display = "none";
+        }, 250);
+      }
+    };
+
+    window.renderPage = () => {
+      const pages = getPages();
+      if (!pages.length) return;
+
+      if (!window._pageRestored) {
+        const saved = +sessionStorage.getItem("currentPage") || pages[0];
+        window.currentPage = pages.includes(saved) ? saved : pages[0];
+        window._pageRestored = true;
+      }
+
+      getAllCards().forEach((c) => {
+        const visible =
+          +c.dataset.page === +window.currentPage &&
+          c.dataset.filtered === "true";
+        c.style.display = visible ? "" : "none";
+      });
+
+      if (pageIndicator) {
+        const idx = pages.indexOf(+window.currentPage);
+        pageIndicator.textContent = `Page ${idx + 1} of ${pages.length}`;
+      }
+
+      sessionStorage.setItem("currentPage", window.currentPage);
+      updateVisibility();
+    };
+
+    window.filterAssets = (q) => {
+      const query = safeStr(q).toLowerCase().trim();
+      const words = query.split(/\s+/).filter(Boolean);
+
+      getAllCards().forEach((c) => {
+        const haystack = `${c.dataset.title} ${c.dataset.author}`.toLowerCase();
+        let score = 0;
+        if (haystack.includes(query)) score += 3;
+        for (const w of words) if (haystack.includes(w)) score += 2;
+        c.dataset.filtered = score > 0 || !query ? "true" : "false";
+      });
+
+      renderPage();
+    };
+
+    window.prevPage = () => {
+      const pages = getPages();
+      const i = pages.indexOf(+window.currentPage);
+      window.currentPage = i <= 0 ? pages.at(-1) : pages[i - 1];
+      renderPage();
+    };
+
+    window.nextPage = () => {
+      const pages = getPages();
+      const i = pages.indexOf(+window.currentPage);
+      window.currentPage =
+        i === -1 || i === pages.length - 1 ? pages[0] : pages[i + 1];
+      renderPage();
+    };
+
+    searchBtn?.addEventListener("click", () =>
+      filterAssets(searchInput.value)
+    );
+    searchInput?.addEventListener(
+      "input",
+      debounce(() => filterAssets(searchInput.value), 200)
+    );
+
+    window.currentPage = +sessionStorage.getItem("currentPage") || 1;
+    renderPage();
+  }
+
+  /* ---------------------------
+     Placeholder Cycle
+  --------------------------- */
+  function initPlaceholders() {
+    const { searchInput } = dom || {};
+    if (!searchInput) return;
+
+    const FADE = 400,
+      HOLD = 4000;
+
+    const fadePlaceholder = (input, text, cb) => {
+      input.classList.add("fade-out");
+      setTimeout(() => {
+        input.placeholder = text;
+        input.classList.remove("fade-out");
+        input.classList.add("fade-in");
+        setTimeout(() => {
+          input.classList.remove("fade-in");
+          cb?.();
+        }, FADE);
+      }, FADE);
+    };
+
+    window.startPlaceholderCycle = () => {
+      if (window._placeholderRunning) return;
+      window._placeholderRunning = true;
+      const loop = async () => {
+        const visible = document.querySelectorAll(
+          `.asset-card[data-filtered="true"][data-page="${window.currentPage}"]`
+        ).length;
+        await new Promise((r) =>
+          fadePlaceholder(searchInput, `${visible} assets on this page`, r)
+        );
+        await delay(HOLD);
+        await new Promise((r) =>
+          fadePlaceholder(searchInput, "Search assets...", r)
+        );
+        await delay(HOLD);
+        if (window._placeholderRunning) loop();
+      };
+      loop();
+    };
+  }
+
+  /* ---------------------------
+     Update Popup
+  --------------------------- */
+  async function initUpdatePopup() {
+    const p = dom.updatePopup;
+    const footerAnchor = document.getElementById("footerVersion");
+
+    try {
+      const res = await fetch(config.sheetUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error("Version fetch failed");
+      const raw = await res.json();
+
+      // Support both {version, message} rows and flat version rows
+      const lastRow = raw.filter((d) => d.version?.toString().trim()).slice(-1)[0];
+      const version = lastRow?.version?.toString().trim() || "V0.8";
+      const message = lastRow?.message?.toString().trim() || "";
+
+      if (footerAnchor) footerAnchor.textContent = `Version ${version}`;
+
+      if (p) {
+        const titleEl = p.querySelector("h2");
+        const msgEl = p.querySelector("p");
+        if (titleEl) titleEl.textContent = `\u{1F389} Version ${version} Update!`;
+        if (msgEl && message) msgEl.textContent = message;
+
+        const dismissed = localStorage.getItem("dismissedUpdateVersion");
+        const closed = sessionStorage.getItem("updatePopupClosed");
+        if (!closed && dismissed !== version) {
+          setTimeout(() => p.classList.add("show"), 600);
+        }
+      }
+    } catch (err) {
+      console.warn("[initUpdatePopup] fetch failed:", err.message);
+      if (footerAnchor) footerAnchor.textContent = "Version V0.8";
+      if (p) {
+        const titleEl = p.querySelector("h2");
+        if (titleEl) titleEl.textContent = "\u{1F389} Version 0.8 Update!";
+      }
+    }
+  }
+
+  /* ---------------------------
+     Asset Loader — always fetches fresh from macro
+  --------------------------- */
+  async function loadAssets() {
+    const { container } = window.dom || {};
+
+    let raw;
+    try {
+      const res = await fetch(config.sheetUrl, { cache: "no-store" });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      raw = await res.json();
+    } catch (err) {
+      console.error("[loadAssets] fetch failed:", err);
+      if (container) container.innerHTML =
+        '<p style="padding:2rem;text-align:center;opacity:.6">Could not load assets — check connection.</p>';
+      return;
+    }
+
+    const data = raw.filter((i) => Object.values(i).some((v) => safeStr(v).trim()));
+    window.assetsData = data;
+
+    const isFavPage = location.pathname.toLowerCase().includes("favorites.html");
+    const filtered  = isFavPage
+      ? data.filter((a) => window.favorites.has(safeStr(a.title).toLowerCase()))
+      : data;
+
+    createAssetCards(filtered || []);
+    if (typeof renderPage === "function") renderPage();
+  }
+
+  /* bootstrap */
+  document.addEventListener("DOMContentLoaded", async () => {
+    initElements();
+    initFavorites();
+    initPaging();
+    initPlaceholders();
+    initUpdatePopup().catch(() => {});
+    await loadAssets();
+    if (typeof window.startPlaceholderCycle === "function") window.startPlaceholderCycle();
+    console.log("✅ WannaSmile Ready");
+  });
+})();
+/* ==========================================================
+   DOWNLOAD BUTTON — saves this HTML file to disk (local only)
+   ========================================================== */
+document.addEventListener("DOMContentLoaded", () => {
+  const dlBtn = document.getElementById("downloadBtn");
+  if (!dlBtn) return;
+
+  dlBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    // Grab the full HTML source of the current document
+    const html = "<!DOCTYPE html>\n" + document.documentElement.outerHTML;
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const url  = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "wnasmilev08.html";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    // Revoke shortly after so memory is freed
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  });
+});
+document.addEventListener("DOMContentLoaded", () => {
+  const wrapper = document.getElementById("quoteWrapper");
+  const box = document.getElementById("quoteBox");
+  const jsonPath = "https://cdn.jsdelivr.net/gh/01110010-00110101/01110010-00110101.github.io@main/system/json/quotes.json";
+
+  let quotes = [];
+  let pos = 0;
+  let lastTime = null;
+
+  const baseSpeed = 120;
+  const slowSpeed = 70;
+  const slowerSpeed = 30;
+
+  let currentSpeed = baseSpeed;
+  let isHoveringBox = false;
+  let isHoveringText = false;
+  let isMouseDown = false;
+
+  /* ==========================================
+     Quote Image Parser
+     Supports:
+     :name:
+     :folder/name:
+     :folder/name.gif:
+     ========================================== */
+  function parseQuoteWithImages(text) {
+    return text.replace(
+      /:([a-zA-Z0-9_\-\/]+(?:\.(png|gif|webp|jpg|jpeg))?):/gi,
+      (match, path, ext) => {
+        // Prevent path traversal
+        if (path.includes("..")) return match;
+
+        // Explicit extension → use as-is
+        if (ext) {
+          return `
+            <img
+              src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/stickers/${path}"
+              class="quote-sticker"
+              alt="${path}"
+              loading="lazy"
+            >
+          `;
+        }
+
+        // No extension → png fallback to gif
+        return `
+          <img
+            src="https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/stickers/${path}.png"
+            class="quote-sticker"
+            alt="${path}"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/01110010-00110101/01110010-00110101.github.io/main/system/images/stickers/${path}.gif';"
+          >
+        `;
+      }
+    );
+  }
+
+  async function loadQuotes() {
+    try {
+      const res = await fetch(jsonPath);
+      const data = await res.json();
+      quotes = Array.isArray(data) && data.length ? data : ["No quotes found"];
+      start();
+    } catch {
+      quotes = ["⚠ Error loading quotes"];
+      start();
+    }
+  }
+
+  function setQuote() {
+    const quote = quotes[Math.floor(Math.random() * quotes.length)];
+
+    box.innerHTML = parseQuoteWithImages(quote);
+
+    pos = wrapper.offsetWidth;
+    box.style.transform = `translateX(${pos}px)`;
+  }
+
+  function updateSpeed() {
+    if (isMouseDown) currentSpeed = 0;
+    else if (isHoveringText) currentSpeed = slowerSpeed;
+    else if (isHoveringBox) currentSpeed = slowSpeed;
+    else currentSpeed = baseSpeed;
+  }
+
+  function animate(time) {
+    if (lastTime !== null) {
+      const dt = (time - lastTime) / 1000;
+      pos -= currentSpeed * dt;
+      box.style.transform = `translateX(${pos}px)`;
+
+      if (pos + box.offsetWidth < 0) {
+        setQuote();
+      }
+    }
+    lastTime = time;
+    requestAnimationFrame(animate);
+  }
+
+  function start() {
+    setQuote();
+    requestAnimationFrame(animate);
+  }
+
+  wrapper.addEventListener("mouseenter", () => {
+    isHoveringBox = true;
+    updateSpeed();
+  });
+
+  wrapper.addEventListener("mouseleave", () => {
+    isHoveringBox = false;
+    isHoveringText = false;
+    updateSpeed();
+  });
+
+  box.addEventListener("mouseenter", () => {
+    isHoveringText = true;
+    updateSpeed();
+  });
+
+  box.addEventListener("mouseleave", () => {
+    isHoveringText = false;
+    updateSpeed();
+  });
+
+  wrapper.addEventListener("mousedown", () => {
+    isMouseDown = true;
+    updateSpeed();
+  });
+
+  // Listen on document so releasing the mouse outside the wrapper
+  // never leaves isMouseDown stuck as true (which froze the ticker).
+  document.addEventListener("mouseup", () => {
+    if (!isMouseDown) return;
+    isMouseDown = false;
+    updateSpeed();
+  });
+
+  loadQuotes();
+});
+
+/* ===============================
+   WannaSmile Page Physics Input
+   SAFE FOR all.js
+   =============================== */
+
+(() => {
+  "use strict";
+
+  // ---- CONFIG ----
+  const PAGE_ACCEL = 0.9;
+  const PAGE_FRICTION = 0.85;
+  const PAGE_THRESHOLD = 1;
+  const TAP_COOLDOWN = 300;
+
+  // ---- STATE ----
+  let velocity = 0;
+  let lastFlip = 0;
+
+  const keys = {
+    left: false,
+    right: false
+  };
+
+  // ---- SAFETY CHECK ----
+  function canFlip() {
+    return typeof window.nextPage === "function"
+        && typeof window.prevPage === "function"
+        && performance.now() - lastFlip > TAP_COOLDOWN;
+  }
+
+  function flipNext() {
+    if (!canFlip()) return;
+    lastFlip = performance.now();
+    window.nextPage();
+  }
+
+  function flipPrev() {
+    if (!canFlip()) return;
+    lastFlip = performance.now();
+    window.prevPage();
+  }
+
+  // ---- INPUT ----
+  document.addEventListener("keydown", e => {
+    if (e.key === "ArrowRight") keys.right = true;
+    if (e.key === "ArrowLeft") keys.left = true;
+
+    if (e.repeat) return;
+
+    if (e.key === "ArrowRight") flipNext();
+    if (e.key === "ArrowLeft") flipPrev();
+  });
+
+  document.addEventListener("keyup", e => {
+    if (e.key === "ArrowRight") keys.right = false;
+    if (e.key === "ArrowLeft") keys.left = false;
+  });
+
+  // ---- PHYSICS LOOP ----
+  function loop() {
+    if (keys.right) velocity += PAGE_ACCEL;
+    if (keys.left) velocity -= PAGE_ACCEL;
+
+    velocity *= PAGE_FRICTION;
+
+    if (velocity > PAGE_THRESHOLD) {
+      flipNext();
+      velocity = 0;
+    }
+
+    if (velocity < -PAGE_THRESHOLD) {
+      flipPrev();
+      velocity = 0;
+    }
+
+    if (Math.abs(velocity) < 0.01) velocity = 0;
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+})();
+</script>
+
+</body>
+</html>
